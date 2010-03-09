@@ -19,8 +19,8 @@
 
 
 //---------------------------------------------------------------------------
-#ifndef thermophysicalModels_cxx
-#define thermophysicalModels_cxx
+#ifndef PtrList_basicThermo_cxx
+#define PtrList_basicThermo_cxx
 
 
 //---------------------------------------------------------------------------
@@ -33,14 +33,34 @@
 
 //---------------------------------------------------------------------------
 %include "src/thermophysicalModels/basic/basicThermo.cxx"
-%include "src/OpenFOAM/fields/tmp/autoPtr_basicThermo.cxx"
-%include "src/OpenFOAM/containers/Lists/PtrList/PtrList_basicThermo.cxx"
 
-%include "src/thermophysicalModels/basic/psiThermo/basicPsiThermo.cxx"
-%include "src/OpenFOAM/fields/tmp/autoPtr_basicPsiThermo.cxx"
-%include "src/OpenFOAM/containers/Lists/PtrList/PtrList_basicPsiThermo.cxx"
+%include "src/OpenFOAM/fields/tmp/autoPtr_basicThermo.cxx"
+
+%include "src/OpenFOAM/containers/Lists/PtrList/PtrList.cxx"
+
+%ignore Foam::PtrList< Foam::basicThermo >::PtrList;
+%ignore Foam::PtrList< Foam::basicThermo >::begin;
+%ignore Foam::PtrList< Foam::basicThermo >::end;
+%ignore Foam::PtrList< Foam::basicThermo >::set;
+
+#if ( __FOAM_VERSION__ >= 010600 )
+%ignore Foam::PtrList< Foam::basicThermo >::xfer;
+#endif
+
+%template( PtrList_basicThermo ) Foam::PtrList< Foam::basicThermo >;
+
+
+//---------------------------------------------------------------------------
+%extend Foam::PtrList< Foam::basicThermo >
+{
+  Foam::PtrList< Foam::basicThermo >( const Foam::label s )
+  {
+    return new Foam::PtrList< Foam::basicThermo >( s );
+  }
+}
+
+%extend Foam::PtrList< Foam::basicThermo > PTRLISTBASED_ADDONS( Foam::basicThermo )
 
 
 //---------------------------------------------------------------------------
 #endif
-
