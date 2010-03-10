@@ -30,6 +30,8 @@
     #include "fixedValueFvPatchField.H"
 %}
 
+%feature( "director" ) fixedValueFvPatchField;
+
 %include "fixedValueFvPatchField.H"
 
 

@@ -19,8 +19,8 @@
 
 
 //---------------------------------------------------------------------------
-#ifndef fixedValueFvPatchField_scalar_cxx
-#define fixedValueFvPatchField_scalar_cxx
+#ifndef fixedGradientFvPatchField_scalar_cxx
+#define fixedGradientFvPatchField_scalar_cxx
 
 
 //---------------------------------------------------------------------------
@@ -36,33 +36,38 @@
 
 %include "src/finiteVolume/fields/fvPatchFields/fvPatchField_scalar.cxx"
 
-%include "src/finiteVolume/fields/fvPatchFields/basic/fixedValue/fixedValueFvPatchField.cxx"
 
-%feature( "director" ) fixedValueFvPatchScalarField;
+%include "src/finiteVolume/fields/fvPatchFields/basic/fixedGradient/fixedGradientFvPatchField.cxx"
+
+
+%feature( "director" ) fixedGradientFvPatchScalarField;
 
 %inline
 {
   namespace Foam 
   {
-    typedef fixedValueFvPatchField< scalar > fixedValueFvPatchScalarField;
+    typedef fixedGradientFvPatchField< scalar > fixedGradientFvPatchScalarField;
   }
 }
 
-DIRECTOR_PRE_EXTENDS( fixedValueFvPatchScalarField );
 
-%template( fixedValueFvPatchScalarField ) Foam::fixedValueFvPatchField< Foam::scalar >;
+//---------------------------------------------------------------------------
+DIRECTOR_PRE_EXTENDS( fixedGradientFvPatchScalarField );
+
+
+//---------------------------------------------------------------------------
+%template( fixedGradientFvPatchScalarField ) Foam::fixedGradientFvPatchField< Foam::scalar >;
 
 
 //---------------------------------------------------------------------------
 %include "src/OpenFOAM/db/objectRegistry.cxx"
 
-%extend Foam::fixedValueFvPatchField< Foam::scalar >
+%extend Foam::fixedGradientFvPatchField< Foam::scalar >
 {
-  DIRECTOR_EXTENDS( fixedValueFvPatchScalarField );
-  TYPEINFO_DIRECTOR_EXTENDS( fvPatchScalarField, fixedValueFvPatchScalarField );
+  DIRECTOR_EXTENDS( fixedGradientFvPatchScalarField );
+  TYPEINFO_DIRECTOR_EXTENDS( fvPatchScalarField, fixedGradientFvPatchScalarField );
 }
 
+
 //---------------------------------------------------------------------------
-
-
 #endif
