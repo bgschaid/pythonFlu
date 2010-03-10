@@ -49,18 +49,17 @@ def createFluidMeshes( rp, runTime ) :
                                                           fluidRegions[ index ],
                                                           IOobject.MUST_READ,
                                                           IOobject.NO_WRITE ) )
-        print repr( environmentalProperties )
         environmentalProperties.store()
         pass
     
-    return fluidRegions, environmentalProperties
+    return fluidRegions
     
     
 #-------------------------------------------------------------------
-def createFluidFields( fluidRegions, runTime ) :
+def createFluidFields( fluidRegions, runTime, rp ) :
     # Initialise fluid field pointer lists
     from Foam.thermophysicalModels import PtrList_basicThermo
-    thermoFluid = PtrList_basicThermo( fluidRegions.size() )
+    thermof = PtrList_basicThermo( fluidRegions.size() )
     
     from Foam.finiteVolume import PtrList_volScalarField
     rhof = PtrList_volScalarField( fluidRegions.size() )
@@ -94,7 +93,7 @@ def createFluidFields( fluidRegions, runTime ) :
     for index in range( fluidRegions.size() ) :
         ext_Info() << "*** Reading fluid mesh thermophysical properties for region " << fluidRegions[ index ].name() << nl << nl
         
-        ext_Info<< "    Adding to pdf\n" << nl
+        ext_Info() << "    Adding to pdf\n" << nl
         pdf.ext_set( index, volScalarField( IOobject( word( "pd" ),
                                                   fileName( runTime.timeName() ),
                                                   fluidRegions[ index ],
@@ -115,7 +114,7 @@ def createFluidFields( fluidRegions, runTime ) :
                                              thermof[ index ].rho() ) )
         
         ext_Info()<< "    Adding to KFluid\n" << nl
-        Kf.ext_set( i, volScalarField( IOobject( word( "K" ),
+        Kf.ext_set( index, volScalarField( IOobject( word( "K" ),
                                                  fileName( runTime.timeName() ),
                                                  fluidRegions[ index ],
                                                  IOobject.NO_READ,
@@ -128,7 +127,7 @@ def createFluidFields( fluidRegions, runTime ) :
                                                      fluidRegions[ index ],
                                                      IOobject.MUST_READ,
                                                      IOobject.AUTO_WRITE ),
-                                           fluidRegions[i] ) )
+                                           fluidRegions[ index ] ) )
         
         ext_Info() << "    Adding to phif\n" << nl
         from Foam.finiteVolume import linearInterpolate
@@ -137,7 +136,7 @@ def createFluidFields( fluidRegions, runTime ) :
                                                            fluidRegions[ index ],
                                                            IOobject.READ_IF_PRESENT,
                                                            IOobject.AUTO_WRITE ),
-                                                 linearInterpolate( rhof[ index ]*Uf[ index ] ) & fluidRegions[ i ].Sf() ) )
+                                                 linearInterpolate( rhof[ index ]*Uf[ index ] ) & fluidRegions[ index ].Sf() ) )
 
          
         ext_Info() << "    Adding to turb\n" << nl
@@ -150,15 +149,20 @@ def createFluidFields( fluidRegions, runTime ) :
                                                                            phif[ index ] / fvc.interpolate( rhof[ index ] ) ),
                                                        thermof[ index ].p() ) ) )
         
-        from Foam.OpenFOAM import IOdicitionary
-        environmentalProperties = IOdicitionary.ext_lookupObject( fluidRegions[ index ], word( "environmentalProperties" ) )
+        from Foam.OpenFOAM import IOdictionary
+        #environmentalProperties = IOdictionary.ext_lookupObject( fluidRegions[ index ], word( "environmentalProperties" ) )
+        environmentalProperties = IOdictionary( IOobject( word( "environmentalProperties" ),
+                                                          fileName( runTime.constant() ),
+                                                          fluidRegions[ index ],
+                                                          IOobject.MUST_READ,
+                                                          IOobject.NO_WRITE ) )
         
         from Foam.OpenFOAM import dimensionedVector
         g = dimensionedVector( environmentalProperties.lookup( word( "g" ) ) )
         
         ext_Info() << "    Adding to ghf\n" << nl
         ghf.ext_set( index, volScalarField( word( "gh" ),
-                                            g & fluidRegions[i].C() ) )
+                                            g & fluidRegions[ index ].C() ) )
         
         ext_Info() << "    Updating p from pd\n" << nl
         thermof[ index ].p() == pdf[ index ] + rhof[ index ] * ghf[ index ] + pRef
@@ -167,7 +171,7 @@ def createFluidFields( fluidRegions, runTime ) :
         initialMassf[ index ] = fvc.domainIntegrate( rhof[ index ] ).value()
     
     
-    return pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMass
+    return pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMassf
         
 
 #-----------------------------------------------------------------------------------------------------------------------
