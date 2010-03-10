@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------------
 # To import corresponding plugin first
 #from Foam.applications.solvers.heatTransfer.chtMultiRegionFoam import plugin
-#from Foam.applications.solvers.heatTransfer.chtMultiRegionFoam import derivedFvPatchFields
+from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam import derivedFvPatchFields
 
 
 #--------------------------------------------------------------------------------------
@@ -43,10 +43,14 @@ def main_standalone( argc, argv ):
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.fluid import createFluidMeshes
     fluidRegions = createFluidMeshes( rp, runTime )
     
-    from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.fluid import createFluidFields
-    pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMass = createFluidFields( fluidRegions, runTime )
+    from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solid import createSolidMeshes
+    solidRegions = createSolidMeshes( rp, runTime )
     
-    print rp.fluidRegionNames
+    from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.fluid import createFluidFields
+    pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMass = createFluidFields( fluidRegions, runTime, rp )
+    
+    from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solid import createSolidField
+    rhos, cps, rhos, Ks, Ts = createSolidField( solidRegions, runTime )
     
     ext_Info() << "End\n"
     
