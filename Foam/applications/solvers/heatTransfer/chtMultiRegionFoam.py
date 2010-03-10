@@ -48,7 +48,7 @@ if WM_PROJECT_VERSION() == "1.5" :
     pass
 
 if WM_PROJECT_VERSION() >= "1.6" :
-    from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam import main_standalone
+    from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solver import main_standalone
     if __name__ == "__main__" :
         argv = sys.argv
         os._exit( main_standalone( len( argv ), argv ) )
