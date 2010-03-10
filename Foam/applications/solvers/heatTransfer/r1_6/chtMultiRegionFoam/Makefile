@@ -20,43 +20,8 @@
 
 
 #--------------------------------------------------------------------------------------
-pyfoam_root_dir:=../../../../..
-
-include $(pyfoam_root_dir)/foam.version.makefile
-
-
-#--------------------------------------------------------------------------------------
-ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010500 ]; then echo 'true'; else echo 'false'; fi )" "true" 
-#--------------------------------------------------------------------------------------
-
-obj_dir := $(WM_PROJECT_DIR)/applications/solvers/heatTransfer/chtMultiRegionFoam/Make/$(WM_OPTIONS)
-
-__CPPFLAGS__ := $(__CPPFLAGS__) \
-	-I$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude \
-	-I$(WM_PROJECT_DIR)/src/meshTools/lnInclude \
-	-I$(WM_PROJECT_DIR)/applications/solvers/heatTransfer/chtMultiRegionFoam/regionProperties 	
-	
-
-__LDFLAGS__ := $(__LDFLAGS__) \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lfiniteVolume \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lbasicThermophysicalModels \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lspecie \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lcompressibleTurbulenceModel \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lcompressibleRASModels \
-	-L$(WM_PROJECT_DIR)/lib/$(WM_OPTIONS) -lcompressibleLESModels \
-	$(obj_dir)/regionProperties.o \
+pyfoam_root_dir:=../../../../../..
 
 include $(pyfoam_root_dir)/include.makefile
 
-#--------------------------------------------------------------------------------------
-else
-#--------------------------------------------------------------------------------------
 
-$(warning To use this functionality it is necessary use OpenFOAM-1.5 or higher)
-
-all:
-clean:
-
-#--------------------------------------------------------------------------------------
-endif
-#--------------------------------------------------------------------------------------
