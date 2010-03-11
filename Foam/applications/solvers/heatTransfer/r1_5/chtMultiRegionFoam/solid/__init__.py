@@ -102,38 +102,27 @@ def createSolidField( solidRegions, runTime ):
                                                      IOobject.AUTO_WRITE ),
                                            solidRegions[ index ] ) )
    
-    return rhos, cps, rhos, Ks, Ts
+    return rhos, cps, rhosCps, Ks, Ts
 
 
 #-----------------------------------------------------------------------------------------------------
-def readSolidMultiRegionPIMPLEControls( mesh ):
-    from Foam.OpenFOAM import word
-    pimple = mesh.solutionDict().subDict( word( "PIMPLE" ) )
-    nNonOrthCorr = pimple.lookupOrDefault( word( "nNonOrthogonalCorrectors" ), 0 )
+def readSolidMultiRegionPISOControls( mesh ):
+    from Foam.OpenFOAM import word, readInt
+    piso = mesh.solutionDict().subDict( word( "PISO" ) )
     
-    return pimple, nNonOrthCorr
+    nNonOrthCorr = 0
+    if piso.found( word( "nNonOrthogonalCorrectors" ) ):
+       nNonOrthCorr = readInt( piso.lookup( word( "nNonOrthogonalCorrectors" ) ) )
+
+    return piso, nNonOrthCorr
 
 
 #-------------------------------------------------------------------------------------------------------
-def setRegionSolidFields( i, solidRegions, rhos, cps, Ks, Ts ):
-    mesh = solidRegions[ i ]
-    rho = rhos[ i ]
-    cp = cps[ i ]
-    K = Ks[ i ]
-    T = Ts[ i ]
-    
-    return mesh, rho, cp, K, T
-
-
-#-------------------------------------------------------------------------------------------------------
-def solveSolid( mesh, rho, cp, K, T, nNonOrthCorr ):
-    for index in range( nNonOrthCorr + 1 ):
-       from Foam import fvm
-       TEqn = fvm.ddt( rho * cp, T ) - fvm.laplacian( K, T )
-       TEqn.relax()
-       TEqn.solve()
-       pass
-    from Foam.OpenFOAM import ext_Info, nl   
-    ext_Info()<< "Min/max T:" << T.ext_min() << ' ' << T.ext_max() << nl
-    
+def solveSolid( i, rhosCps,  Ks, Ts, nNonOrthCorr ):
+    for nonOrth in range( nNonOrthCorr +1 ):
+        from Foam.finiteVolume import solve
+        from Foam import fvm
+        solve( fvm.ddt( rhosCps[ i ], Ts[ i ]) - fvm.laplacian( Ks[ i ], Ts[ i ] ) )
+        pass
+      
     pass

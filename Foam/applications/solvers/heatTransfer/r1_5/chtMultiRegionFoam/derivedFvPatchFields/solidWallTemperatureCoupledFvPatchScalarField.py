@@ -127,7 +127,7 @@ class solidWallTemperatureCoupledFvPatchScalarField( fixedValueFvPatchScalarFiel
         from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam import coupleManager
         self.coupleManager_ = coupleManager( p, dict_ )
         from Foam.OpenFOAM import word
-        self.KName_ = dict_.lookup( word( "K" ) ) 
+        self.KName_ = word( dict_.lookup( word( "K" ) ) )
         
         if dict_.found( word( "value" ) ):
            from Foam.finiteVolume import fvPatchScalarField
@@ -262,24 +262,31 @@ class solidWallTemperatureCoupledFvPatchScalarField( fixedValueFvPatchScalarFiel
         
     #------------------------------------------------------------------------------
     def updateCoeffs( self ):
-        if self.updated():
-           return
-        from Foam.OpenFOAM import scalar
-        neighbourField = self.coupleManager_.neighbourPatchField( scalar )
+        try:  
+           if self.updated():
+              return
+
+           from Foam.OpenFOAM import scalar
+           neighbourField = self.coupleManager_.neighbourPatchField( scalar )
         
-        self == neighbourField
+           self == neighbourField
         
-        fixedValueFvPatchScalarField.updateCoeffs( self )
+           fixedValueFvPatchScalarField.updateCoeffs( self )
+        except Exception as exc:
+            import sys, traceback
+            traceback.print_exc( file = sys.stdout )
+            raise exc
+        
         pass
     
     
     #------------------------------------------------------------------------------
     def write( self, os ):
         try:
-           fvPatchScalarField.write(self, os)
+           from Foam.finiteVolume import fvPatchScalarField
+           fvPatchScalarField.write( self, os)
            self.coupleManager_.writeEntries( os )
-        
-           from Foam.OpenFOAM import word, token
+           from Foam.OpenFOAM import word, token, nl
            os.writeKeyword( word( "K" ) ) << self.KName_ << token( token.END_STATEMENT ) << nl
            self.writeEntry( word( "value" ), os )
            pass
@@ -305,7 +312,6 @@ class solidWallTemperatureCoupledFvPatchScalarField( fixedValueFvPatchScalarFiel
         
 #----------------------------------------------------------------------------------
 from Foam.template import getfvPatchFieldConstructorToTableBase_scalar
-
 class fvPatchFieldConstructorToTable_solidWallTemperatureCoupled( getfvPatchFieldConstructorToTableBase_scalar() ):
     def __init__( self ):
         aBaseClass = getfvPatchFieldConstructorToTableBase_scalar()

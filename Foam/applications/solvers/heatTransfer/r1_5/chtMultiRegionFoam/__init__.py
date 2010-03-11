@@ -122,9 +122,9 @@ class coupleManager( object ):
         
         self.patch_ = patch
         from Foam.OpenFOAM import word
-        self.neighbourRegionName_ = dict_.lookup( word( "neighbourRegionName" ) )
-        self.neighbourPatchName_ = dict_.lookup( word( "neighbourPatchName" ) )
-        self.neighbourFieldName_ = dict_.lookup( word( "neighbourFieldName" ) )
+        self.neighbourRegionName_ = word( dict_.lookup( word( "neighbourRegionName" ) ) )
+        self.neighbourPatchName_ = word( dict_.lookup( word( "neighbourPatchName" ) ) )
+        self.neighbourFieldName_ = word( dict_.lookup( word( "neighbourFieldName" ) ) )
         self.localRegion_ = self.patch_.boundaryMesh().mesh()
         
         return self
@@ -195,7 +195,7 @@ class coupleManager( object ):
 
 #------------------------------
     def writeEntries( self, os ):
-        from Foam.OpenFOAM import keyType, word, token
+        from Foam.OpenFOAM import word, token, nl
         
         os.writeKeyword( word( "neighbourRegionName" ) )
         os << self.neighbourRegionName_ << token( token.END_STATEMENT ) << nl
@@ -229,8 +229,28 @@ class coupleManager( object ):
 
 #----------------------------------
     def neighbourRegion( self ):
-        from finiteVolume import fvMesh
-        return fvMesh.ext_lookupobject( self.localRegion_.parent(), self.neighbourRegionName_ ) 
+        from Foam.finiteVolume import fvMesh
+        return fvMesh.ext_lookupObject( self.localRegion_.parent(), self.neighbourRegionName_ ) 
         
         
-#------------------------------------------------------------------------------------------------------
+#---------------------------------
+    def neighbourPatchID( self ):
+        return self.neighbourRegion().boundaryMesh().findPatchID( self.neighbourPatchName_ )
+
+
+#----------------------------------
+    def neighbourPatch( self ):
+        return self.neighbourRegion().boundary()[ self.neighbourPatchID() ]
+
+#----------------------------------
+    def neighbourPatchField( self, Type ):
+        from Foam.template import GeometricFieldTypeName
+        from Foam.finiteVolume import volMesh
+        an_expr = "from Foam.finiteVolume import %s" %GeometricFieldTypeName( Type, volMesh )
+        exec( an_expr )
+        an_expr = "res = %s.ext_lookupPatchField( self.neighbourPatch(), self.neighbourFieldName_ )" %GeometricFieldTypeName( Type, volMesh )
+        exec( an_expr )
+        return res
+
+
+#--------------------------------------------------------------------------------------

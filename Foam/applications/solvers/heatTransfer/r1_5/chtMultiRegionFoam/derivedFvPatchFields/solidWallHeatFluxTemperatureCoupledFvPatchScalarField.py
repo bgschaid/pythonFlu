@@ -125,7 +125,7 @@ class solidWallHeatFluxTemperatureCoupledFvPatchScalarField( fixedGradientFvPatc
         from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam import coupleManager
         self.coupleManager_ = coupleManager( p, dict_ )
         from Foam.OpenFOAM import word
-        self.KName_ = dict_.lookup( word( "K" ) ) 
+        self.KName_ = word( dict_.lookup( word( "K" ) ) )
         
         if dict_.found( word( "value" ) ):
            from Foam.finiteVolume import fvPatchScalarField
@@ -264,13 +264,14 @@ class solidWallHeatFluxTemperatureCoupledFvPatchScalarField( fixedGradientFvPatc
               return
            from Foam.OpenFOAM import scalar
            neighbourField = self.coupleManager_.neighbourPatchField( scalar )
-        
+           
            from Foam.finiteVolume import volScalarField
            K = volScalarField.ext_lookupPatchField( self.patch(), self.KName_ )
+           from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.derivedFvPatchFields import solidWallTemperatureCoupledFvPatchScalarField
+           
+           self.gradient().ext_assign( solidWallTemperatureCoupledFvPatchScalarField.ext_refCast( neighbourField ).flux() / K )
         
-           self.gradient().ext_assign( fvPatchScalarField.ext_refCast( self, self.neighbourField ).flux() / K )
-        
-           fixedValueFvPatchScalarField.updateCoeffs( self )
+           fixedGradientFvPatchScalarField.updateCoeffs( self )
            pass
         except Exception as exc:
             import sys, traceback
@@ -281,12 +282,17 @@ class solidWallHeatFluxTemperatureCoupledFvPatchScalarField( fixedGradientFvPatc
     
     #------------------------------------------------------------------------------
     def write( self, os ):
-        fvPatchScalarField.write(self, os)
-        self.coupleManager_.writeEntries( os )
+        try:
+           fvPatchScalarField.write(self, os)
+           self.coupleManager_.writeEntries( os )
         
-        from Foam.OpenFOAM import word, token
-        os.writeKeyword( word( "K" ) ) << self.KName_ << token( token.END_STATEMENT ) << nl
-        self.writeEntry( word( "value" ), os )
+           from Foam.OpenFOAM import word, token, nl
+           os.writeKeyword( word( "K" ) ) << self.KName_ << token( token.END_STATEMENT ) << nl
+           self.writeEntry( word( "value" ), os )
+        except Exception as exc:
+            import sys, traceback
+            traceback.print_exc( file = sys.stdout )
+            raise exc
         pass
         
 
@@ -296,7 +302,7 @@ class fvPatchFieldConstructorToTable_solidWallHeatFluxTemperatureCoupled( getfvP
     def __init__( self ):
         aBaseClass = getfvPatchFieldConstructorToTableBase_scalar()
         aBaseClass.__init__( self )
-        print "in the init"
+
         from Foam.OpenFOAM import word 
         aBaseClass.init( self, self, word( "solidWallHeatFluxTemperatureCoupled" ) )
         pass
