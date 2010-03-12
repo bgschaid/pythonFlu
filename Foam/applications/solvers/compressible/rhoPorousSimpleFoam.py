@@ -37,9 +37,6 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
    from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import main_standalone
    os._exit( main_standalone( len( argv ), argv ) )
    pass
-else:
-   from Foam.OpenFOAM import ext_Info
-   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.4.1-dev\n "
 
 
 if WM_PROJECT_VERSION() == "1.5":
@@ -54,9 +51,6 @@ if WM_PROJECT_VERSION() == "1.5":
    from Foam.applications.solvers.compressible.r1_5.rhoPorousSimpleFoam import main_standalone
    os._exit( main_standalone( len( argv ), argv ) )
    pass
-else:
-   from Foam.OpenFOAM import ext_Info
-   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.5\n "
    
 
 if WM_PROJECT_VERSION() >= "1.6":
@@ -71,8 +65,6 @@ if WM_PROJECT_VERSION() >= "1.6":
    from Foam.applications.solvers.compressible.r1_6.rhoPorousSimpleFoam import main_standalone
    os._exit( main_standalone( len( argv ), argv ) )
    pass
-else:
-   from Foam.OpenFOAM import ext_Info
-   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.5\n "
+
 #--------------------------------------------------------------------------------------
 

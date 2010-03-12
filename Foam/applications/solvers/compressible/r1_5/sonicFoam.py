@@ -117,63 +117,20 @@ def _createFields( runTime, mesh, R, Cv ):
 
 
 #--------------------------------------------------------------------------------------
-def _UEqn( U, rho, phi, turbulence, p ):
-    from Foam import fvm
-    UEqn = fvm.ddt( rho, U ) + fvm.div( phi, U ) + turbulence.divDevRhoReff( U )
+def compressibleContinuityErrs( p, rho, phi, psi, cumulativeContErr ):
     
-    from Foam import fvc
-    from Foam.finiteVolume import solve
-    solve( UEqn == -fvc.grad( p ) )
-    
-    return UEqn
-
-
-#--------------------------------------------------------------------------------------
-def _eEqn( rho, e, phi, turbulence, p, thermo ):
-    from Foam import fvm, fvc
-    from Foam.finiteVolume import solve
-    solve( fvm.ddt( rho, e ) + fvm.div( phi, e ) - fvm.laplacian( turbulence.alphaEff(), e )
-           == - p * fvc.div( phi / fvc.interpolate( rho ) ) )
-
-    thermo.correct()
-    pass
-
-
-#--------------------------------------------------------------------------------------
-def _pEqn( rho, thermo, UEqn, nNonOrthCorr, psi, U, mesh, phi, p, cumulativeContErr ):
-    rho.ext_assign( thermo.rho() )
-
-    rUA = 1.0 / UEqn.A()
-    
-    U.ext_assign( rUA * UEqn.H() )
-
-    from Foam import fvc
-    from Foam.OpenFOAM import word
-    from Foam.finiteVolume import surfaceScalarField
-    phid = surfaceScalarField( word( "phid" ), 
-                               fvc.interpolate( psi ) * ( ( fvc.interpolate( U ) & mesh.Sf() ) + fvc.ddtPhiCorr( rUA, rho, U, phi ) ) )
-
-    for nonOrth in range( nNonOrthCorr + 1 ) :
-        from Foam import fvm
-        pEqn = fvm.ddt( psi, p ) + fvm.div( phid, p ) - fvm.laplacian( rho * rUA, p )
-        
-        pEqn.solve()
-
-        if nonOrth == nNonOrthCorr :
-            phi.ext_assign( pEqn.flux() )
-            pass
-        
-        pass
-
     from Foam.finiteVolume.cfdTools.compressible import rhoEqn
     rhoEqn( rho, phi )
     
-    from Foam.finiteVolume.cfdTools.compressible import compressibleContinuityErrs
-    cumulativeContErr = compressibleContinuityErrs( rho, thermo, cumulativeContErr )
-    
-    U.ext_assign( U - rUA * fvc.grad( p ) )
-    U.correctBoundaryConditions()
-    
+    sumLocalContErr =  ( (rho - psi * p ).mag().sum() / rho.sum()).value()
+    globalContErr = ( ( rho - psi * p ).sum() /rho.sum() ).value()
+    cumulativeContErr += globalContErr
+
+    from Foam.OpenFOAM import ext_Info, nl
+    ext_Info() << "time step continuity errors : sum local = " << sumLocalContErr\
+               << ", global = " << globalContErr \
+               << ", cumulative = " << cumulativeContErr << nl
+
     return cumulativeContErr
 
 
@@ -220,7 +177,7 @@ def main_standalone( argc, argv ):
         from Foam import fvc
         from Foam.finiteVolume import solve
         solve( UEqn == -fvc.grad( p ) )
-
+        
         solve( fvm.ddt( rho, e ) + fvm.div( phi, e ) - fvm.laplacian( mu, e ) == \
                - p * fvc.div( phi / fvc.interpolate( rho ) ) + mu * fvc.grad( U ).symm().magSqr() )
         
@@ -228,13 +185,33 @@ def main_standalone( argc, argv ):
         
         psi.ext_assign( 1.0 / ( R * T ) )
         
+        # --- PISO loop
+        for corr in range( nCorr ):
+            rUA = 1.0/UEqn.A()
+            U.ext_assign( rUA * UEqn.H() )
+            
+            from Foam.finiteVolume import surfaceScalarField
+            from Foam.OpenFOAM import word
+            phid = surfaceScalarField( word( "phid" ),
+                                       fvc.interpolate( psi ) * ( ( fvc.interpolate( U ) & mesh.Sf() ) + fvc.ddtPhiCorr( rUA, rho, U, phi ) ) )
+            
+            for nonOrth in range( nNonOrthCorr + 1 ):
+                pEqn = fvm.ddt( psi, p ) + fvm.div( phid, p ) - fvm.laplacian( rho * rUA, p ) 
 
-
-        turbulence.correct();
-
-        rho.ext_assign( thermo.rho() )
-
-        runTime.write();
+                pEqn.solve()
+                phi.ext_assign( pEqn.flux() )
+                pass
+            
+            cumulativeContErr = compressibleContinuityErrs( p, rho, phi, psi, cumulativeContErr )
+            
+            U.ext_assign( U - rUA * fvc.grad( p ) )
+            U.correctBoundaryConditions()
+            
+            pass
+            
+        rho.ext_assign( psi * p )
+        
+        runTime.write()
 
         ext_Info() << "ExecutionTime = " << runTime.elapsedCpuTime() << " s" << \
               "  ClockTime = " << runTime.elapsedClockTime() << " s" << nl << nl

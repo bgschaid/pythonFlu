@@ -53,7 +53,7 @@ def _createFields( runTime, mesh ):
     from Foam.finiteVolume.cfdTools.compressible import compressibleCreatePhi
     phi = compressibleCreatePhi( runTime, mesh, rho, U )
     
-    pRefCell = 0;
+    pRefCell = 0
     pRefValue = 0.0;
     from Foam.finiteVolume import setRefCell
     setRefCell( p, mesh.solutionDict().subDict( word( "SIMPLE" ) ), pRefCell, pRefValue )
@@ -61,9 +61,9 @@ def _createFields( runTime, mesh ):
     from Foam.OpenFOAM import dimensionedScalar
     pMin = dimensionedScalar( mesh.solutionDict().subDict( word( "SIMPLE" ) ).lookup( word( "pMin" ) ) )
        
-    #ext_Info() << "Creating turbulence model\n" << nl
-    #from Foam import compressible
-    #turbulence = compressible.RASModel.New( rho, U, phi, thermo() )
+    ext_Info() << "Creating turbulence model\n" << nl
+    from Foam import compressible
+    turbulence = compressible.RASModel.New( rho, U, phi, thermo() )
     
     from Foam import fvc
     initialMass = fvc.domainIntegrate( rho )
@@ -87,7 +87,7 @@ def _createFields( runTime, mesh ):
           pass
        pass
     
-    return p, h, rho, U, phi, thermo, pZones, pMin, pressureImplicitPorosity, initialMass, nUCorr, pRefCell, pRefValue
+    return turbulence, p, h, rho, U, phi, thermo, pZones, pMin, pressureImplicitPorosity, initialMass, nUCorr, pRefCell, pRefValue
 
 
 #------------------------------------------------------------------------------------------------------
@@ -128,8 +128,10 @@ def _UEqn( phi, U, p, turbulence, pZones, pressureImplicitPorosity, nUCorr, eqnR
         from Foam.OpenFOAM import word
         trTU.rename( word( "rAU" ) )
         
+        gradp = fvc.grad( p )
+        
         for UCorr in range ( nUCorr ):
-            U.ext_assign( trTU & ( UEqn.H() - fvc.grad( p ) ) )
+            U.ext_assign( trTU & ( UEqn.H() - gradp ) )
             pass
         
         U.correctBoundaryConditions()
@@ -270,14 +272,10 @@ def main_standalone( argc, argv ):
     from Foam.OpenFOAM.include import createMesh
     mesh = createMesh( runTime )
 
-    p, h, rho, U, phi, thermo, pZones, pMin,\
+    turbulence, p, h, rho, U, phi, thermo, pZones, pMin,\
     pressureImplicitPorosity, initialMass, nUCorr, pRefCell, pRefValue  = _createFields( runTime, mesh )
     
-    from Foam.OpenFOAM import ext_Info, nl    
-    ext_Info() << "Creating turbulence model\n" << nl
-    from Foam import compressible
-    turbulence = compressible.RASModel.New( rho, U, phi, thermo() )
-    
+        
     from Foam.finiteVolume.cfdTools.general.include import initContinuityErrs
     cumulativeContErr = initContinuityErrs()
     
