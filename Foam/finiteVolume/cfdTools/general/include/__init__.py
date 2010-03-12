@@ -99,7 +99,19 @@ def readTimeControls( runTime ):
     
     adjustTimeStep = Switch( runTime.controlDict().lookup( word( "adjustTimeStep" ) ) )
     maxCo = readScalar( runTime.controlDict().lookup( word( "maxCo" ) ) )
-    maxDeltaT = runTime.controlDict().lookupOrDefault( word( "maxDeltaT" ), GREAT, 0, 1 )
+    
+    from Foam import WM_PROJECT_VERSION
+    if WM_PROJECT_VERSION() <="1.5":
+       maxDeltaT = GREAT
+       if runTime.controlDict().found( word( "maxDeltaT" ) ):
+          maxDeltaT = readScalar( runTime.controlDict().lookup( word( "maxDeltaT" ) ) )
+          pass
+
+    if WM_PROJECT_VERSION() >="1.6":
+       maxDeltaT = runTime.controlDict().lookupOrDefault( word( "maxDeltaT" ), GREAT, 0, 1 )
+       pass
+    
+    
     
     return adjustTimeStep, maxCo, maxDeltaT
 
@@ -128,7 +140,7 @@ def setDeltaT( runTime, adjustTimeStep, maxCo, maxDeltaT, CoNum ):
         deltaTFact = min( min( maxDeltaTFact, 1.0 + 0.1 * maxDeltaTFact ), 1.2 )
         runTime.setDeltaT( min( deltaTFact * runTime.deltaT().value(), maxDeltaT ) )
         from Foam.OpenFOAM import ext_Info, nl
-        ext_Info() << "deltaT = " << runTime.deltaT().value()<<nl
+        ext_Info() << "deltaT = " << runTime.deltaT().value() << nl
         pass
     
     return runTime
@@ -136,47 +148,12 @@ def setDeltaT( runTime, adjustTimeStep, maxCo, maxDeltaT, CoNum ):
 
 #---------------------------------------------------------------------------------------------
 def readSIMPLEControls( mesh ):
-    from Foam.OpenFOAM import Switch
-    from Foam.OpenFOAM import word
-    from Foam import WM_PROJECT_VERSION
-    
-    simple = mesh.solutionDict().subDict( word( "SIMPLE" ) )
-    
-    if WM_PROJECT_VERSION <= "1.4.1-dev" :
-       from Foam.OpenFOAM import readInt
-       nNonOrthCorr = 0
-       if ( simple.found( word( "nNonOrthogonalCorrectors" ) ) ):
-          nNonOrthCorr = readInt(simple.lookup( word( "nNonOrthogonalCorrectors" ) ) )
-          pass
- 
-       momentumPredictor = True
-       if ( simple.found( word( "momentumPredictor" ) ) ):
-          momentumPredictor = Switch(simple.lookup( word( "momentumPredictor" ) ) )
-          pass
- 
-       fluxGradp = False
-       if ( simple.found( word( "fluxGradp" ) ) ):
-          fluxGradp = Switch( simple.lookup( word( "fluxGradp" ) ) )
-          pass
- 
-       transonic = False
-       if ( simple.found( word( "transSonic" ) ) ):
-          transonic = Switch( simple.lookup( word( "transSonic" ) ) )
-          pass
-       pass
-    else:
-       
-       nNonOrthCorr = simple.lookupOrDefault( word( "nNonOrthogonalCorrectors" ), 0 )
-
-       momentumPredictor = simple.lookupOrDefault( word( "momentumPredictor" ), Switch( True ) )
-
-       fluxGradp = simple.lookupOrDefault( word( "fluxGradp" ), Switch( False ) )
-
-       transonic = simple.lookupOrDefault( word( "transonic" ), Switch( False ) )
-       
-       pass
-          
-    return simple, nNonOrthCorr, momentumPredictor, fluxGradp, transonic
+    from Foam import dispatcher, WM_PROJECT_VERSION
+    fun = dispatcher( "Foam.finiteVolume.cfdTools.general.include.readSIMPLEControls_impl",
+                      "readSIMPLEControls",
+                      WM_PROJECT_VERSION() )
+                      
+    return fun( mesh )
 
 
 #----------------------------------------------------------------------------------------------    
@@ -221,3 +198,22 @@ def CourantNo( mesh, phi, runTime ):
 
     return CoNum, meanCoNum
 
+
+#---------------------------------------------------------------------------------------------
+def readEnvironmentalProperties( runTime, mesh ):
+    from Foam.OpenFOAM import ext_Info, nl
+    ext_Info() << "\nReading environmentalProperties" << nl
+    
+    from Foam.OpenFOAM import IOdictionary, fileName, word, IOobject
+    environmentalProperties = IOdictionary( IOobject( word( "environmentalProperties" ),
+                                                      fileName( runTime.constant() ),
+                                                      mesh,
+                                                      IOobject.MUST_READ,
+                                                      IOobject.NO_WRITE ) )
+    from Foam.OpenFOAM import dimensionedVector
+    g = dimensionedVector( environmentalProperties.lookup( word( "g" ) ) )
+    
+    return g
+
+
+#--------------------------------------------------------------------------------------------
