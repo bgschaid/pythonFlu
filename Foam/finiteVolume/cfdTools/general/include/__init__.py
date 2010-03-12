@@ -44,53 +44,11 @@ def ContinuityErrs( phi, runTime, mesh, cumulativeContErr ):
 
 #---------------------------------------------------------------------------
 def readPISOControls( mesh ):
-    from Foam.OpenFOAM import dictionary
-    from Foam.OpenFOAM import readInt
-    from Foam.OpenFOAM import Switch
-    from Foam.OpenFOAM import word
-
-    piso = dictionary( mesh.solutionDict().subDict( word( "PISO" ) ) )
-
-    nCorr = readInt( piso.lookup( word( "nCorrectors" ) ) )
-
-    ddtPhiCorr = False;
-    
-    from Foam import WM_PROJECT_VERSION
-    if WM_PROJECT_VERSION() <= "1.4.1-dev":
-      nNonOrthCorr = 0;
-      if piso.found( word( "nNonOrthogonalCorrectors" ) ) :
-         nNonOrthCorr = readInt( piso.lookup( word( "nNonOrthogonalCorrectors" ) ) )
-         pass
-    
-      momentumPredictor = True;
-      if piso.found( word( "momentumPredictor" ) ) :
-         momentumPredictor = Switch( piso.lookup( word( "momentumPredictor" ) ) )
-         pass
-   
-      transonic = False;
-      if piso.found( word( "transonic" ) ) :
-         transonic = Switch( piso.lookup( word( "transonic" ) ) )
-         pass
-
-      nOuterCorr = 1;
-      if piso.found( word( "nOuterCorrectors" ) ) :
-         nOuterCorr = readInt( piso.lookup( word( "nOuterCorrectors" ) ) )
-         pass
-    
-      if piso.found( word( "ddtPhiCorr" ) ) :
-         ddtPhiCorr = Switch( piso.lookup( word( "ddtPhiCorr" ) ) )
-         pass
-      pass
-    else:
-       nNonOrthCorr = piso.lookupOrDefault( word( "nNonOrthogonalCorrectors" ), 0 )
-       
-       momentumPredictor = piso.lookupOrDefault( word( "momentumPredictor" ), Switch( True ) )
-       
-       transonic = piso.lookupOrDefault( word( "transonic" ), Switch( False ) )
-       
-       nOuterCorr = piso.lookupOrDefault( word( "nOuterCorrectors" ), 1 )
-
-    return piso, nCorr, nNonOrthCorr, momentumPredictor, transonic, nOuterCorr, ddtPhiCorr
+    from Foam import dispatcher, WM_PROJECT_VERSION
+    fun = dispatcher( "Foam.finiteVolume.cfdTools.general.include.readPISOControls_impl",
+                      "readPISOControls",
+                      WM_PROJECT_VERSION() )
+    return fun( mesh )
 
 
 #---------------------------------------------------------------------------
