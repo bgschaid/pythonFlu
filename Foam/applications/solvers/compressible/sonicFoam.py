@@ -45,7 +45,7 @@ if WM_PROJECT_VERSION() == "1.5":
       pass
    else :
       argv = None
-      test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'compressible', 'sonicFoam', 'ras', 'prism' )
+      test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'compressible', 'sonicFoam', 'forwardStep' )
       argv = [ __file__, "-case", test_dir ]
       pass
    from Foam.applications.solvers.compressible.r1_5.sonicFoam import main_standalone
