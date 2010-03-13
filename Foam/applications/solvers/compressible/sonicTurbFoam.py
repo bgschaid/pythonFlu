@@ -39,11 +39,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
       from Foam.applications.solvers.compressible.r1_4_1_dev.sonicTurbFoam import main_standalone
       pass
    pass
-
-
-#----------------------------------------------------------------------------------------      
-import sys, os
-if os.environ["WM_PROJECT_VERSION"] == "1.5" :
+elif os.environ["WM_PROJECT_VERSION"] == "1.5" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
