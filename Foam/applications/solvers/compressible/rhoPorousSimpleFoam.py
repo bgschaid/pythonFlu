@@ -31,7 +31,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
       from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
    else :
-      from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import *
       pass
    pass
 
@@ -47,7 +47,7 @@ if WM_PROJECT_VERSION() == "1.5":
       from Foam.applications.solvers.compressible.r1_5.rhoPorousSimpleFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
    else:
-      from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_4_1_dev.rhoPorousSimpleFoam import *
    pass
    
 
@@ -62,7 +62,7 @@ if WM_PROJECT_VERSION() >= "1.6":
       from Foam.applications.solvers.compressible.r1_6.rhoPorousSimpleFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
    else:
-      from Foam.applications.solvers.compressible.r1_6.rhoPorousSimpleFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_6.rhoPorousSimpleFoam import *
    pass
 
 #--------------------------------------------------------------------------------------

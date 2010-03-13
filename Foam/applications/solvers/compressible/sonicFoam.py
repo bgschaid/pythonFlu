@@ -37,7 +37,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
       os._exit( main_standalone( len( argv ), argv ) )
       pass
    else:
-      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import *
    pass
        
 #--------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ if WM_PROJECT_VERSION() == "1.5":
       from Foam.applications.solvers.compressible.r1_5.sonicFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
    else:
-      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import *
       pass
 
 #--------------------------------------------------------------------------------------
@@ -67,6 +67,6 @@ if WM_PROJECT_VERSION() >= "1.6":
       from Foam.applications.solvers.compressible.r1_6.sonicFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
    else:
-      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import main_standalone
+      from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import *
       pass
    pass
