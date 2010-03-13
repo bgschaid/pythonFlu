@@ -197,7 +197,7 @@ def main_standalone( argc, argv ):
         ext_Info() << "Time = " <<  runTime.timeName() << nl << nl
 
         from Foam.finiteVolume.cfdTools.general.include import readPISOControls
-        piso, nCorr, nNonOrthCorr, momentumPredictor, transonic, nOuterCorr, ddtPhiCorr = readPISOControls( mesh )
+        piso, nCorr, nNonOrthCorr, momentumPredictor, transSonic, nOuterCorr = readPISOControls( mesh )
 
         from Foam.finiteVolume.cfdTools.incompressible import CourantNo
         CoNum, meanCoNum = CourantNo( mesh, phi, runTime )
@@ -265,28 +265,11 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev" :
          test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.4.1-dev', 'icoFoam' )
          argv = [ __file__, test_dir, 'cavity' ]
          pass
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.icoFoam import main_embedded
       os._exit( main_embedded( len( argv ), argv ) )
-   else:
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.icoFoam import main_embedded
       pass
-
-
-if WM_PROJECT_VERSION() >= "1.6" :
-   if __name__ == "__main__" :
-      argv = sys.argv
-      if len( argv ) > 1 and argv[ 1 ] == "-test":
-         argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'incompressible', 'icoFoam', 'cavity' )
-         argv = [ __file__, "-case", test_dir ]
-         pass
-      from Foam.applications.solvers.incompressible.r1_6.icoFoam import main_standalone
-      os._exit( main_standalone( len( argv ), argv ) )
-      pass
-   else:
-      from Foam.applications.solvers.incompressible.r1_6.icoFoam import main_standalone
-      pass
-   pass
+else:
+   from Foam.OpenFOAM import ext_Info
+   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.4.1-dev \n "      
 
     
 #--------------------------------------------------------------------------------------

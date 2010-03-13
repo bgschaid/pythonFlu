@@ -59,56 +59,24 @@ def _createFields( runTime, mesh ):
     
 
     from Foam import incompressible
-    from Foam import WM_PROJECT_VERSION
-    if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-       turbulence = incompressible.turbulenceModel.New( U, phi, laminarTransport )
-       pass
-    else:
-       turbulence = incompressible.RASModel.New( U, phi, laminarTransport )
-       pass
-           
+    turbulence = incompressible.turbulenceModel.New( U, phi, laminarTransport )
+
     return p, U, phi, turbulence, pRefCell, pRefValue, laminarTransport
 
 
 #--------------------------------------------------------------------------------------
-def initConvergenceCheck( simple ):
-    eqnResidual = 1
-    maxResidual = 0
-    convergenceCriterion = 0
-    
-    from Foam.OpenFOAM import word
-    tmp, convergenceCriterion = simple.readIfPresent( word( "convergence" ), convergenceCriterion )
-    
-    return eqnResidual, maxResidual, convergenceCriterion
-
-
-#--------------------------------------------------------------------------------------
-def Ueqn( phi, U, p, turbulence, eqnResidual, maxResidual ):
+def Ueqn( phi, U, p, turbulence ):
     from Foam import fvm, fvc
-    from Foam import WM_PROJECT_VERSION
-    if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-       UEqn = fvm.div( phi, U ) + turbulence.divR( U ) 
-       pass
-    else:
-       UEqn = fvm.div( phi, U ) + turbulence.divDevReff( U ) 
-       pass
-
+    UEqn = fvm.div( phi, U ) + turbulence.divR( U ) 
     UEqn.relax()
-    
     from Foam.finiteVolume import solve
-    if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-       solve( UEqn == -fvc.grad(p) )
-       pass
-    else:
-       eqnResidual = solve( UEqn == -fvc.grad(p) ).initialResidual()
-       maxResidual = max(eqnResidual, maxResidual)
-       pass
-       
-    return UEqn, eqnResidual, maxResidual
+    solve( UEqn == -fvc.grad(p) )
+           
+    return UEqn
 
 
 #--------------------------------------------------------------------------------------
-def pEqn( runTime, mesh, p, phi, U, UEqn, eqnResidual, maxResidual, nNonOrthCorr, cumulativeContErr, pRefCell, pRefValue ): 
+def pEqn( runTime, mesh, p, phi, U, UEqn, nNonOrthCorr, cumulativeContErr, pRefCell, pRefValue ): 
     
     p.ext_boundaryField().updateCoeffs()
 
@@ -129,21 +97,7 @@ def pEqn( runTime, mesh, p, phi, U, UEqn, eqnResidual, maxResidual, nNonOrthCorr
         pEqn = fvm.laplacian( 1.0 / AU, p ) == fvc.div( phi ) 
         pEqn.setReference( pRefCell, pRefValue )
         
-        
-        from Foam import WM_PROJECT_VERSION
-        if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-           pEqn.solve()
-           pass
-        else:
-           # retain the residual from the first iteration
-           if ( nonOrth == 0 ):
-              eqnResidual = pEqn.solve().initialResidual()
-              maxResidual = max( eqnResidual, maxResidual )
-              pass
-           else:
-              pEqn.solve()
-              pass
-           pass
+        pEqn.solve()
         
         if ( nonOrth == nNonOrthCorr ):
            phi.ext_assign( phi - pEqn.flux() )
@@ -161,20 +115,9 @@ def pEqn( runTime, mesh, p, phi, U, UEqn, eqnResidual, maxResidual, nNonOrthCorr
     U.ext_assign( U - fvc.grad( p ) / AU )
     U.correctBoundaryConditions()
 
-    return eqnResidual, maxResidual, cumulativeContErr
+    return cumulativeContErr
 
 
-#--------------------------------------------------------------------------------------
-def convergenceCheck( maxResidual, convergenceCriterion ):
-    from Foam.OpenFOAM import ext_Info, nl
-    
-    if (maxResidual < convergenceCriterion):
-       ext_Info() << "reached convergence criterion: " << convergenceCriterion << nl
-       runTime.writeAndEnd();
-       ext_Info   << "latestTime = " << runTime.timeName() << nl
-       pass
-
-    
 #--------------------------------------------------------------------------------------
 def main_standalone( argc, argv ):
 
@@ -203,21 +146,11 @@ def main_standalone( argc, argv ):
         from Foam.finiteVolume.cfdTools.general.include import readSIMPLEControls
         simple, nNonOrthCorr, momentumPredictor, fluxGradp, transonic = readSIMPLEControls( mesh )
         
-        from Foam import WM_PROJECT_VERSION
-        if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-           eqnResidual = 0
-           maxResidual = 0
-           pass
-        else:
-           eqnResidual, maxResidual, convergenceCriterion = initConvergenceCheck( simple )
-           pass
-                
         p.storePrevIter()
         
-        UEqn, eqnResidual, maxResidual = Ueqn( phi, U, p, turbulence, eqnResidual, maxResidual )
+        UEqn = Ueqn( phi, U, p, turbulence )
         
-        eqnResidual, maxResidual, cumulativeContErr = pEqn( runTime, mesh, p, phi, U, UEqn, \
-                                                            eqnResidual, maxResidual, nNonOrthCorr, cumulativeContErr, pRefCell, pRefValue )
+        cumulativeContErr = pEqn( runTime, mesh, p, phi, U, UEqn, nNonOrthCorr, cumulativeContErr, pRefCell, pRefValue )
         
         turbulence.correct()
 
@@ -225,10 +158,6 @@ def main_standalone( argc, argv ):
         
         ext_Info() << "ExecutionTime = " << runTime.elapsedCpuTime() << " s" << \
               "  ClockTime = " << runTime.elapsedClockTime() << " s" << nl << nl
-        
-        if WM_PROJECT_VERSION() >= "1.6" :
-           convergenceCheck( maxResidual, convergenceCriterion ) 
-           pass
         
         runTime +=runTime.deltaT()
         pass
@@ -240,7 +169,7 @@ def main_standalone( argc, argv ):
 
 
 #--------------------------------------------------------------------------------------
-import os, sys
+import sys, os
 from Foam import WM_PROJECT_VERSION
 if WM_PROJECT_VERSION() <= "1.4.1-dev" :
    if __name__ == "__main__" :
@@ -250,29 +179,12 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev" :
          test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.4.1-dev', 'incompressible', 'simpleFoam' )
          argv = [ __file__, test_dir, 'pitzDaily3Blocks' ]
          pass
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.simpleFoam import main_standalone
-      os._exit( main_standalone( len( argv ), argv ) )
-   else:
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.simpleFoam import main_standalone
-      pass
-
-
-#------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() >= "1.6" :
-   if __name__ == "__main__" :
-      argv = sys.argv
-      if len( argv ) > 1 and argv[ 1 ] == "-test":
-         argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'incompressible', 'simpleFoam', 'pitzDaily' )
-         argv = [ __file__, "-case", test_dir ]
-         pass
-      from Foam.applications.solvers.incompressible.r1_6.simpleFoam import main_standalone 
-      os._exit( main_standalone( len( argv ), argv ) )
-   else:
-      from Foam.applications.solvers.incompressible.r1_6.simpleFoam import main_standalone 
-      pass
+      os._exit( main_embedded( len( argv ), argv ) )
    pass
-   
+else:
+   from Foam.OpenFOAM import ext_Info
+   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.4.1-dev \n "      
+  
 
     
 #--------------------------------------------------------------------------------------
