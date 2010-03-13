@@ -146,7 +146,7 @@ def main_standalone( argc, argv ):
         ext_Info() << "Time = " << runTime.timeName() << nl << nl
         
         from Foam.finiteVolume.cfdTools.general.include import readPISOControls
-        piso, nCorr, nNonOrthCorr, momentumPredictor, transonic, nOuterCorr, ddtPhiCorr = readPISOControls( mesh )
+        piso, nCorr, nNonOrthCorr, momentumPredictor, transSonic, nOuterCorr = readPISOControls( mesh )
 
         from Foam.finiteVolume.cfdTools.compressible import compressibleCourantNo
         CoNum, meanCoNum = compressibleCourantNo( mesh, phi, rho, runTime )

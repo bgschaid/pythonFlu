@@ -163,7 +163,7 @@ def main_standalone( argc, argv ):
         ext_Info() << "Time = " << runTime.timeName() << nl << nl
 
         from Foam.finiteVolume.cfdTools.general.include import readPISOControls
-        piso, nCorr, nNonOrthCorr, momentumPredictor, transonic, nOuterCorr, ddtPhiCorr = readPISOControls( mesh )
+        piso, nCorr, nNonOrthCorr, momentumPredictor, transSonic, nOuterCorr = readPISOControls( mesh )
 
         from Foam.finiteVolume.cfdTools.compressible import compressibleCourantNo
         CoNum, meanCoNum = compressibleCourantNo( mesh, phi, rho, runTime )
@@ -193,10 +193,10 @@ def main_standalone( argc, argv ):
             
             from Foam.OpenFOAM import word
             phid = ( ( fvc.interpolate( rho * U ) & mesh.Sf() ) + fvc.ddtPhiCorr( rUA, rho, U, phi ) )  / fvc.interpolate( p )
-            
+            print "111111111111"
             for nonOrth in range( nNonOrthCorr + 1 ):
-                pEqn = fvm.ddt( psi, p ) + fvm.div( phid, p, word( "div(phid,p)" ) ) - fvm.laplacian( rho*rUA, p ) 
-
+                pEqn = fvm.ddt( psi, p ) + fvm.div( phid, p, word( "div(phid,p)" ) ) - fvm.laplacian( rho * rUA, p ) 
+                
                 pEqn.solve()
                 phi = pEqn.flux()
                 pass
@@ -231,8 +231,8 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
       argv = sys.argv
       if len(argv) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.4.1-dev', 'compressible', 'sonicFoam', 'ras' )
-         argv = [ __file__, test_dir, 'prism' ]
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.4.1-dev', 'compressible', 'sonicFoam' )
+         argv = [ __file__, test_dir, 'shockTube' ]
          pass
       os._exit( main_standalone( len( argv ), argv ) )
       pass
