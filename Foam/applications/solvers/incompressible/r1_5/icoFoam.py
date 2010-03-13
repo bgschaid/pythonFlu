@@ -255,26 +255,8 @@ def main_standalone( argc, argv ):
 
     
 #--------------------------------------------------------------------------------------
-import sys, os
 from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() <= "1.4.1-dev" :
-   if __name__ == "__main__" :
-      argv = sys.argv
-      if len( argv ) > 1 and argv[ 1 ] == "-test":
-         argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.4.1-dev', 'icoFoam' )
-         argv = [ __file__, test_dir, 'cavity' ]
-         pass
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.icoFoam import main_embedded
-      os._exit( main_embedded( len( argv ), argv ) )
-   else:
-      from Foam.applications.solvers.incompressible.r1_4_1_dev.icoFoam import *
-      pass
-   pass
-pass
-
-
-#-------------------------------------------------------------------------------------------------
+import os,sys
 if WM_PROJECT_VERSION() == "1.5" :
    if __name__ == "__main__" :
       argv = sys.argv
@@ -283,31 +265,12 @@ if WM_PROJECT_VERSION() == "1.5" :
          test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'incompressible', 'icoFoam', 'cavity' )
          argv = [ __file__, "-case", test_dir ]
          pass
-      from Foam.applications.solvers.incompressible.r1_5.icoFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
       pass
-   else:
-      from Foam.applications.solvers.incompressible.r1_5.icoFoam import *
-      pass
    pass
-
-
-#-------------------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() >= "1.6" :
-   if __name__ == "__main__" :
-      argv = sys.argv
-      if len( argv ) > 1 and argv[ 1 ] == "-test":
-         argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'incompressible', 'icoFoam', 'cavity' )
-         argv = [ __file__, "-case", test_dir ]
-         pass
-      from Foam.applications.solvers.incompressible.r1_6.icoFoam import main_standalone
-      os._exit( main_standalone( len( argv ), argv ) )
-      pass
-   else:
-      from Foam.applications.solvers.incompressible.r1_6.icoFoam import *
-      pass
-   pass
+else:
+   from Foam.OpenFOAM import ext_Info
+   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.5 \n "     
 
     
 #--------------------------------------------------------------------------------------
