@@ -27,37 +27,45 @@ argv = None
 import sys, os
 
 from Foam import WM_PROJECT_VERSION
+if WM_PROJECT_VERSION() <= "1.4.1-dev" :
+    from Foam.OpenFOAM import ext_Info
+    ext_Info() << "\n\n To use this solver, it is necessary to SWIG OpenFOAM-1.5 or higher\n"    
+    pass
 
+
+#----------------------------------------------------------------------------------------------
 if WM_PROJECT_VERSION() == "1.5" :
     if __name__ == "__main__" :
         argv = sys.argv
+        if len( argv ) > 1 and argv[ 1 ] == "-test":
+           argv = None
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'heatTransfer', 'buoyantSimpleRadiationFoam', 'hotRadiationRoom' )
+           argv = [ __file__, "-case", test_dir ]
+           pass
+        from Foam.applications.solvers.heatTransfer.r1_5.buoyantSimpleRadiationFoam import main_standalone
+        os._exit( main_standalone( len( argv ), argv ) )
         pass
-    else :
-        argv = None
-        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1_5', 'heatTransfer', 'buoyantSimpleRadiationFoam', 'hotRadiationRoom' )
-        argv = [ __file__, "-case", test_dir ]
+    else:
+        from Foam.applications.solvers.heatTransfer.r1_5.buoyantSimpleRadiationFoam import *
         pass
-    from Foam.applications.solvers.heatTransfer.r1_5.buoyantSimpleRadiationFoam import main_standalone
-    os._exit( main_standalone( len( argv ), argv ) )
     pass
+    
 
+#---------------------------------------------------------------------------------------------
 if WM_PROJECT_VERSION() >= "1.6":
     if __name__ == "__main__" :
         argv = sys.argv
+        if len( argv ) > 1 and argv[ 1 ] == "-test":
+           argv = None
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'heatTransfer', 'buoyantSimpleRadiationFoam', 'hotRadiationRoom' )
+           argv = [ __file__, "-case", test_dir ]
+           pass
+        from Foam.applications.solvers.heatTransfer.r1_6.buoyantSimpleRadiationFoam import main_standalone
+        os._exit( main_standalone( len( argv ), argv ) )
         pass
-    else :
-        argv = None
-        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1_6', 'heatTransfer', 'buoyantSimpleRadiationFoam', 'hotRadiationRoom' )
-        argv = [ __file__, "-case", test_dir ]
+    else:
+        from Foam.applications.solvers.heatTransfer.r1_6.buoyantSimpleRadiationFoam import *
         pass
-    from Foam.applications.solvers.heatTransfer.r1_6.buoyantSimpleRadiationFoam import main_standalone
-    os._exit( main_standalone( len( argv ), argv ) )
-    pass
-else:
-    from Foam.OpenFOAM import ext_Info, nl
-    ext_Info() <<"\n\n The use buoyantSimpleRadiationFoam It is necessary to SWIG OpenFOAM-1.5 or higher\n"    
-    pass
-
 
 #--------------------------------------------------------------------------------------
 

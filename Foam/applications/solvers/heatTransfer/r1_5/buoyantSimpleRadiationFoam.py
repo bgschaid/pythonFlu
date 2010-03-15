@@ -158,7 +158,7 @@ def fun_pEqn( runTime, thermo, UEqn, U, phi, rho, gh, pd, p, initialMass, mesh, 
     
     from Foam import fvm
     for nonOrth in range( nNonOrthCorr + 1):
-        pdEqn = fvm.laplacian( rho * rUA, pd ) == fvc.div(phi) 
+        pdEqn = ( fvm.laplacian( rho * rUA, pd ) == fvc.div(phi) )
         
         pdEqn.setReference(pdRefCell, pdRefValue)
         # retain the residual from the first iteration    

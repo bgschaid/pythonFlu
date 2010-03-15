@@ -34,32 +34,33 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev" :
 
 
 if WM_PROJECT_VERSION() == "1.5" :
-    from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solver import main_standalone
     if __name__ == "__main__" :
         argv = sys.argv
+        if len( argv ) > 1 and argv[ 1 ] == "-test":
+           argv = None
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           argv = [ __file__, "-case", test_dir ]
+           pass
+        from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solver import main_standalone
         os._exit( main_standalone( len( argv ), argv ) )
         pass
-    else :
-        argv = None
-        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
-        argv = [ __file__, "-case", test_dir ]
-        os._exit( main_standalone( len( argv ), argv ) )
-        pass
-    pass
+    else:
+        from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solver import *
 
 if WM_PROJECT_VERSION() >= "1.6" :
-    from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solver import main_standalone
     if __name__ == "__main__" :
         argv = sys.argv
+        if len( argv ) > 1 and argv[ 1 ] == "-test":
+           argv = None
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           argv = [ __file__, "-case", test_dir ]
+           pass
+        from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solver import main_standalone
         os._exit( main_standalone( len( argv ), argv ) )
         pass
-    else :
-        argv = None
-        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
-        argv = [ __file__, "-case", test_dir ]
-        os._exit( main_standalone( len( argv ), argv ) )
+    else:
+        from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solver import *
         pass
-    pass
 
 
 #--------------------------------------------------------------------------------------
