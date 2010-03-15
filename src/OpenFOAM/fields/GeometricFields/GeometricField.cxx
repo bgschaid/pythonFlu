@@ -56,21 +56,12 @@
 
 %define __COMMON_GEOMETRIC_FIELD_TEMPLATE_FUNC__( Type, TPatchField, TMesh )
 {
-    static const Foam::GeometricField< Type, TPatchField, TMesh >&
-    ext_lookupObject( const Foam::objectRegistry& theRegistry, const Foam::word& theName )
-    {
-        return theRegistry.lookupObject< Foam::GeometricField< Type, TPatchField, TMesh > >( theName );
-    }
+    OBJECTREGISTRY_TEMPLATE_3_EXTENDS( GeometricField, Type, TPatchField, TMesh )
     
     static const TPatchField< Type >&
     ext_lookupPatchField(const Foam::fvPatch& thePatch, const word& theName )
     {
         return thePatch.lookupPatchField< Foam::GeometricField< Type, TPatchField, TMesh >, Type >( theName );
-    }
-
-    static bool ext_foundObject( const Foam::objectRegistry& theRegistry, const Foam::word& theName )
-    {
-        return theRegistry.foundObject< Foam::GeometricField< Type, TPatchField, TMesh > >( theName );
     }
 
     void ext_assign( const Foam::GeometricField< Type, TPatchField, TMesh >& theArg )
@@ -167,6 +158,11 @@
     }
     
     Foam::tmp< Foam::GeometricField< Foam::scalar, TPatchField, TMesh > > __div__( const Foam::GeometricField< Foam::scalar, TPatchField, TMesh >& theArg )
+    {
+        return get_ref( self ) / theArg;
+    }
+    
+    Foam::tmp< Foam::GeometricField< Foam::scalar, TPatchField, TMesh > > __div__( const Foam::dimensioned< Foam::scalar >& theArg )
     {
         return get_ref( self ) / theArg;
     }
