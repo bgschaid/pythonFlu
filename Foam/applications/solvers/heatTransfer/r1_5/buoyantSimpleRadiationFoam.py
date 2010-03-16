@@ -72,13 +72,13 @@ def createFields( runTime, mesh, g ):
                                    IOobject.AUTO_WRITE ),
                          mesh )
     
-    p = pd + rho * gh + pRef
+    p.ext_assign( pd + rho * gh + pRef )
     thermo.correct()
     
     pdRefCell = 0
     pdRefValue = 0.0
     from Foam.finiteVolume import setRefCell
-    setRefCell( p, mesh.solutionDict().subDict( word( "SIMPLE" ) ), pdRefCell, pdRefValue )
+    setRefCell( pd, mesh.solutionDict().subDict( word( "SIMPLE" ) ), pdRefCell, pdRefValue )
     
     ext_Info() << "Creating radiation model\n" << nl
     
