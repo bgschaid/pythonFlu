@@ -177,6 +177,11 @@
         return theArg * get_ref( self );
     }
     
+    Foam::tmp< Foam::GeometricField< Foam::vector, TPatchField, TMesh > > __rmul__( const Foam::vector& theArg )
+    {
+        return theArg * get_ref( self );
+    }
+    
     Foam::tmp< Foam::GeometricField< Foam::scalar, TPatchField, TMesh > > __rmul__( const Foam::dimensioned< Foam::scalar >& theArg )
     {
         return theArg * get_ref( self ) ;
@@ -266,6 +271,10 @@ GEOMETRIC_FIELD_TEMPLATE_FUNC( Foam::scalar, TPatchField, TMesh )
     {
         return get_ref( self ) / theArg;
     }
+    Foam::tmp< Foam::GeometricField< Foam::vector, TPatchField, TMesh > > __mul__( const Foam::dimensioned< Foam::scalar >& theArg )
+    {
+        return get_ref( self ) * theArg;
+    }
     Foam::tmp< Foam::GeometricField< Foam::vector, TPatchField, TMesh > >  __rxor__( const Foam::dimensioned< Foam::vector >& theArg )
     {
         return theArg ^ get_ref( self );
@@ -275,6 +284,12 @@ GEOMETRIC_FIELD_TEMPLATE_FUNC( Foam::scalar, TPatchField, TMesh )
     {
         return theArg & get_ref( self );
     }
+    
+    Foam::tmp<Foam::GeometricField<Foam::scalar, TPatchField, TMesh > > __rand__( const Foam::vector& theArg )
+    {
+        return theArg & get_ref( self );
+    }
+    
 #if ( __FOAM_VERSION__ > 010500 )     
     Foam::tmp< Foam::GeometricField< Foam::scalar, TPatchField, TMesh > >__rand__( const Foam::UniformDimensionedField< Foam::vector >& theArg )
     {
