@@ -55,6 +55,7 @@
 
 %include "src/finiteVolume/fvMesh/fvBoundaryMesh.cxx"
 %include "src/finiteVolume/fvMesh/fvPatches/fvPatch.cxx"
+%include "src/finiteVolume/fvMesh/fvPatches/derived/wallFvPatch.cxx"
 %include "src/finiteVolume/surfaceMesh.cxx"
 %include "src/finiteVolume/volMesh.cxx"
 
