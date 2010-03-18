@@ -52,24 +52,29 @@ static Foam::TTarget& ext_refCast( Foam::TSource& theArg )
 
 
 //--------------------------------------------------------------------------
-%define _IS_A_EXTENDS( TSource, TTarget ) 
+%define _IS_EXTENDS( TSource, TTarget ) 
 static bool ext_isA(const Foam::TSource& theArg )
 {
   return isA< TTarget >( theArg );
 }
+static bool ext_isType(const Foam::TSource& theArg )
+{
+  return isType< TTarget >( theArg );
+}
+
 %enddef
 
 
 //---------------------------------------------------------------------------
 %define TYPEINFO_EXTENDS( TSource, TTarget )
-  _IS_A_EXTENDS( TSource, TTarget ) 
+  _IS_EXTENDS( TSource, TTarget ) 
   _TYPEINFO_EXTENDS( TSource, TTarget )
 %enddef
 
 
 //---------------------------------------------------------------------------
 %define TYPEINFO_DIRECTOR_EXTENDS( TSource, TTarget )
-  _IS_A_EXTENDS( TSource, TTarget ) 
+  _IS_EXTENDS( TSource, TTarget ) 
   _DIRECTOR_EXTENDS( TSource, TTarget )
 %enddef
 
