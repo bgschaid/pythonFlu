@@ -142,13 +142,22 @@ public:
     // Selectors
 
         //- Return a reference to the selected LES model
-        static autoPtr< incompressible::LESModel > New
+#ifndef SWIG
+        static autoPtr<LESModels> New
         (
             const volVectorField& U,
             const surfaceScalarField& phi,
             transportModel& lamTransportModel
         );
 
+#else
+        static autoPtr< incompressible::LESModel > New
+        (
+            const volVectorField& U,
+            const surfaceScalarField& phi,
+            transportModel& lamTransportModel
+        );
+#endif
 
     //- Destructor
     virtual ~LESModel()

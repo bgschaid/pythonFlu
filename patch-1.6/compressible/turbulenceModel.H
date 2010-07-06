@@ -134,7 +134,8 @@ public:
     // Selectors
 
         //- Return a reference to the selected turbulence model
-        static autoPtr<compressible::turbulenceModel> New
+#ifndef SWIG
+        static autoPtr<turbulenceModel> New
         (
             const volScalarField& rho,
             const volVectorField& U,
@@ -142,6 +143,15 @@ public:
             const basicThermo& thermoPhysicalModel
         );
 
+#else
+        static autoPtr<compressible::turbulenceModel> New
+        (
+            const volScalarField& rho,
+            const volVectorField& U,
+            const surfaceScalarField& phi,
+            const basicThermo& thermoPhysicalModel
+        );
+#endif
 
     //- Destructor
     virtual ~turbulenceModel()
