@@ -26,6 +26,13 @@
 #----------------------------------------------------------------------------
 import sys, os
 from Foam import WM_PROJECT_VERSION
+if WM_PROJECT_VERSION() < "1.6" :
+   from Foam.OpenFOAM import ext_Info
+   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.6 or higher\n "
+   pass
+   
+
+#----------------------------------------------------------------------------
 if WM_PROJECT_VERSION() == "1.6" :
    if __name__ == "__main__" :
       argv = sys.argv
