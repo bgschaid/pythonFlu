@@ -89,7 +89,7 @@ def createFluidFields( fluidRegions, runTime, rp, environmentalProperties ) :
     
     from Foam.OpenFOAM import dimensionedScalar, word, dimensionSet
     pRef = dimensionedScalar( word( "pRef" ),
-                              dimensionSet(1, -1, -2, 0, 0),
+                              dimensionSet( 1.0, -1.0, -2.0, 0.0, 0.0 ),
                               rp.lookup( word( "pRef" ) ) )
     
     from Foam.OpenFOAM import ext_Info, nl
