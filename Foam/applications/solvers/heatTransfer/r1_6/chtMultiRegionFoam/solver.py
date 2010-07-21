@@ -65,7 +65,7 @@ def main_standalone( argc, argv ):
     thermoFluid, rhoFluid, KFluid, UFluid, phiFluid, gFluid, turbulence, DpDtFluid, initialMassFluid = createFluidFields( fluidRegions, runTime )
 
     from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solid import createSolidField
-    rhos, cps, rhos, Ks, Ts = createSolidField( solidRegions, runTime )
+    rhos, cps, rhosCps, Ks, Ts = createSolidField( solidRegions, runTime )
     
     from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.fluid import initContinuityErrs
     cumulativeContErr = initContinuityErrs( fluidRegions.size() )
@@ -97,7 +97,7 @@ def main_standalone( argc, argv ):
             pass
         
         runTime += runTime.deltaT()
-        ext_Info()<< "Time = " << runTime.timeName() << nl << nl;      
+        ext_Info()<< "Time = " << runTime.timeName() << nl << nl      
                 
         if nOuterCorr != 1 :
             for i in range( fluidRegions.size() ):

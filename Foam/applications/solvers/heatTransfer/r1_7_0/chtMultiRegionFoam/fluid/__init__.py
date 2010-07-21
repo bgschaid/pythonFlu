@@ -27,14 +27,14 @@
 def createFluidMeshes( rp, runTime ) :
     
     from Foam.finiteVolume import fvMesh, PtrList_fvMesh
-    fluidRegions = PtrList_fvMesh( rp.fluidRegionNames.size() )
+    fluidRegions = PtrList_fvMesh( rp.fluidRegionNames().size() )
     
     from Foam.OpenFOAM import word, fileName, IOobject
-    for index in range( rp.fluidRegionNames.size() ) :
+    for index in range( rp.fluidRegionNames().size() ) :
         from Foam.OpenFOAM import ext_Info, nl
-        ext_Info()<< "Create fluid mesh for region " << rp.fluidRegionNames[ index ] \
+        ext_Info()<< "Create fluid mesh for region " << rp.fluidRegionNames()[ index ] \
                   << " for time = " << runTime.timeName() << nl << nl
-        mesh = fvMesh( IOobject( rp.fluidRegionNames[ index ],
+        mesh = fvMesh( IOobject( rp.fluidRegionNames()[ index ],
                                  fileName( runTime.timeName() ),
                                  runTime,
                                  IOobject.MUST_READ ) )
@@ -68,6 +68,12 @@ def createFluidFields( fluidRegions, runTime ) :
     
     from Foam.thermophysicalModels import PtrList_basicPsiThermo
     thermoFluid = PtrList_basicPsiThermo( fluidRegions.size() ) 
+    
+    p_rghFluid = PtrList_volScalarField( fluidRegions.size() )
+    
+    ghFluid = PtrList_volScalarField( fluidRegions.size() )
+    
+    ghfFluid = PtrList_surfaceScalarField(fluidRegions.size())
     
     from Foam.OpenFOAM import List_scalar
     initialMassFluid = List_scalar( fluidRegions.size() )
@@ -138,17 +144,31 @@ def createFluidFields( fluidRegions, runTime ) :
                                                                      UFluid[ index ],
                                                                      phiFluid[ index ],
                                                                      thermoFluid[ index ] ) )
+        ext_Info() << "    Adding to ghFluid\n" << nl
+        ghFluid.ext_set( index, volScalarField( word( "gh" ) , gFluid[ index ] & fluidRegions[ index ].C() ) )
+
+        ext_Info() << "    Adding to ghfFluid\n" << nl
+        ghfFluid.ext_set( index, surfaceScalarField( word( "ghf" ), gFluid[ index ] & fluidRegions[ index ].Cf() ) )
+
+        p_rghFluid.ext_set( index, volScalarField( IOobject( word( "p_rgh" ),
+                                                         fileName( runTime.timeName() ),
+                                                         fluidRegions[ index ],
+                                                         IOobject.MUST_READ,
+                                                         IOobject.AUTO_WRITE ),
+                                               fluidRegions[ index ] ) )
+        # Force p_rgh to be consistent with p
+        p_rghFluid[ index ].ext_assign( thermoFluid[ index ].p() - rhoFluid[ index ] * ghFluid[ index ] )
+        
+        from Foam import fvc
+        initialMassFluid[ index ] = fvc.domainIntegrate( rhoFluid[ index ] ).value() 
         
         ext_Info()<< "    Adding to DpDtFluid\n" << nl
-        from Foam import fvc
         DpDtFluid.ext_set( index, volScalarField( word( "DpDt" ), fvc.DDt( surfaceScalarField( word( "phiU" ), 
                                                                                                phiFluid[ index ] / fvc.interpolate( rhoFluid[ index ] ) ),
                                                                            thermoFluid[ index ].p() ) ) )
 
-        initialMassFluid[ index ] = fvc.domainIntegrate( rhoFluid[ index ] ).value()              
-        pass
     
-    return thermoFluid, rhoFluid, KFluid, UFluid, phiFluid, gFluid, turbulence, DpDtFluid, initialMassFluid
+    return thermoFluid, rhoFluid, KFluid, UFluid, phiFluid, gFluid, turbulence, DpDtFluid, initialMassFluid, ghFluid, ghfFluid, p_rghFluid
         
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -199,7 +219,7 @@ def readFluidMultiRegionPIMPLEControls( mesh ) :
 
 #--------------------------------------------------------------------------------------------------------------------------
 def setRegionFluidFields( i, fluidRegions, thermoFluid, rhoFluid, KFluid, UFluid, \
-                          phiFluid, gFluid, turbulence, DpDtFluid, initialMassFluid ):
+                          phiFluid, turbulence, DpDtFluid, initialMassFluid, ghFluid, ghfFluid, p_rghFluid ):
     mesh = fluidRegions[ i ]
 
     thermo = thermoFluid[ i ]
@@ -207,19 +227,22 @@ def setRegionFluidFields( i, fluidRegions, thermoFluid, rhoFluid, KFluid, UFluid
     K = KFluid[ i ]
     U = UFluid[ i ]
     phi = phiFluid[ i ]
-    g = gFluid[ i ]
-
+    
     turb = turbulence[ i ]
     DpDt = DpDtFluid[ i ]
 
     p = thermo.p()
     psi = thermo.psi()
     h = thermo.h()
-
+    
+    p_rgh = p_rghFluid[ i ]
+    gh = ghFluid[ i ]
+    ghf = ghfFluid[ i ]
+    
     from Foam.OpenFOAM import dimensionedScalar, word, dimMass
-    massIni = dimensionedScalar( word( "massIni" ), dimMass, initialMassFluid[ i ] )
+    initialMass = dimensionedScalar( word( "massIni" ), dimMass, initialMassFluid[ i ] )
 
-    return mesh, thermo, rho, K, U, phi, g, turb, DpDt, p, psi, h, massIni
+    return mesh, thermo, rho, K, U, phi, turb, DpDt, p, psi, h, initialMass, p_rgh, gh, ghf
 
 
 #--------------------------------------------------------------------------------------------------------------------------
@@ -259,7 +282,7 @@ def compressibleContinuityErrors( i, mesh, rho, thermo, cumulativeContErr ) :
 
 
 #--------------------------------------------------------------------------------------------------------------------------
-def fun_UEqn( rho, U, phi, g, p, turb, mesh, momentumPredictor ) :
+def fun_UEqn( rho, U, phi, ghf, p_rgh, turb, mesh, momentumPredictor ) :
     # Solve the Momentum equation
     from Foam import fvm
     UEqn = fvm.ddt( rho, U ) + fvm.div( phi, U ) + turb.divDevRhoReff( U )
@@ -269,7 +292,7 @@ def fun_UEqn( rho, U, phi, g, p, turb, mesh, momentumPredictor ) :
     if momentumPredictor :
         from Foam import fvc
         from Foam.finiteVolume import solve
-        solve( UEqn == fvc.reconstruct( fvc.interpolate( rho ) * ( g & mesh.Sf() )  - fvc.snGrad( p ) * mesh.magSf() ) )
+        solve( UEqn == fvc.reconstruct( ( -ghf * fvc.snGrad( rho ) - fvc.snGrad( p_rgh ) )*mesh.magSf() ) )
         pass
     
     return UEqn
@@ -300,10 +323,10 @@ def fun_hEqn( rho, h, phi, turb, DpDt, thermo, mesh, oCorr, nOuterCorr ) :
 
 
 #---------------------------------------------------------------------------------------------------------    
-def fun_pEqn( i, mesh, p, g, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, psi, DpDt, massIni, \
+def fun_pEqn( i, mesh, p, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, psi, DpDt, initialMass, p_rgh, gh, ghf, \
               nNonOrthCorr, oCorr, nOuterCorr, corr, nCorr, cumulativeContErr ) :
     
-    closedVolume = p.needReference()
+    closedVolume = p_rgh.needReference()
 
     rho.ext_assign( thermo.rho() )
     
@@ -315,31 +338,28 @@ def fun_pEqn( i, mesh, p, g, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, ps
     rhorUAf = surfaceScalarField( word( "(rho*(1|A(U)))" ) , fvc.interpolate( rho * rUA ) )
 
     U.ext_assign( rUA * UEqn.H() ) 
-    
+
     from Foam import fvc
 
     phiU = ( fvc.interpolate( rho ) *
                  (  ( fvc.interpolate( U ) & mesh.Sf() ) +
                       fvc.ddtPhiCorr( rUA, rho, U, phi ) ) )
-    phi.ext_assign( phiU + fvc.interpolate( rho ) * ( g & mesh.Sf() ) * rhorUAf )
-    
+    phi.ext_assign( phiU - rhorUAf * ghf * fvc.snGrad( rho ) * mesh.magSf() )
     from Foam import fvm
     for nonOrth in range ( nNonOrthCorr + 1 ):
-        pEqn = ( fvm.ddt( psi, p) + fvc.div( phi ) - fvm.laplacian( rhorUAf, p ) )
-        if oCorr == ( nOuterCorr - 1 ) and corr == ( nCorr - 1 ) and nonOrth == nNonOrthCorr :
-            pEqn.solve( mesh.solver( word( str( p.name() ) +  "Final" ) ) )
-        else:
-            pEqn.solve( mesh.solver( p.name() ) )
-            pass
+        p_rghEqn = ( fvm.ddt( psi, p_rgh) + fvc.ddt( psi, rho ) * gh + fvc.div( phi ) - fvm.laplacian( rhorUAf, p_rgh ) )
+        p_rghEqn.solve( mesh.solver( p_rgh.select( ( oCorr == nOuterCorr-1 and corr == ( nCorr-1 ) and nonOrth == nNonOrthCorr ) ) ) )
         
         if nonOrth == nNonOrthCorr :
-            phi.ext_assign( phi + pEqn.flux() )
+            phi.ext_assign( phi + p_rghEqn.flux() )
             pass
         pass
     
     # Correct velocity field
     U.ext_assign( U + rUA * fvc.reconstruct( ( phi - phiU ) / rhorUAf ) )
     U.correctBoundaryConditions()
+    
+    p.ext_assign( p_rgh + rho * gh )
 
     #Update pressure substantive derivative
     DpDt.ext_assign( fvc.DDt( surfaceScalarField( word( "phiU" ), phi / fvc.interpolate( rho ) ), p ) )
@@ -354,8 +374,9 @@ def fun_pEqn( i, mesh, p, g, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, ps
     # For closed-volume cases adjust the pressure and density levels
     # to obey overall mass continuity
     if closedVolume :
-       p.ext_assign( p + ( massIni - fvc.domainIntegrate( psi * p ) ) / fvc.domainIntegrate( psi ) )
+       p.ext_assign( p + ( initialMass - fvc.domainIntegrate( psi * p ) ) / fvc.domainIntegrate( psi ) )
        rho.ext_assign( thermo.rho() )
+       p_rgh.ext_assign( p - rho * gh )
        pass
     #Update thermal conductivity
     K.ext_assign( thermoFluid[ i ].Cp() * turb.alphaEff() )
@@ -364,7 +385,7 @@ def fun_pEqn( i, mesh, p, g, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, ps
 
 
 #--------------------------------------------------------------------------------------------------------------------------
-def solveFluid( i, mesh, thermo, thermoFluid, rho, K, U, phi, g, h, turb, DpDt, p, psi, massIni,\
+def solveFluid( i, mesh, thermo, thermoFluid, rho, K, U, phi, h, turb, DpDt, p, psi, initialMass, p_rgh, gh, ghf,\
                 oCorr, nCorr, nOuterCorr, nNonOrthCorr, momentumPredictor,cumulativeContErr ) :
     
     if oCorr == 0 :
@@ -372,12 +393,12 @@ def solveFluid( i, mesh, thermo, thermoFluid, rho, K, U, phi, g, h, turb, DpDt, 
         rhoEqn( rho, phi )
         pass
     
-    UEqn = fun_UEqn( rho, U, phi, g, p, turb, mesh, momentumPredictor )
+    UEqn = fun_UEqn( rho, U, phi, ghf, p_rgh, turb, mesh, momentumPredictor )
     hEqn = fun_hEqn( rho, h, phi, turb, DpDt, thermo, mesh, oCorr, nOuterCorr )
     
     # --- PISO loop
     for corr in range( nCorr ):
-        cumulativeContErr =  fun_pEqn( i, mesh, p, g, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, psi, DpDt, massIni,
+        cumulativeContErr =  fun_pEqn( i, mesh, p, rho, turb, thermo, thermoFluid, K, UEqn, U, phi, psi, DpDt, initialMass, p_rgh, gh, ghf,
                                        nNonOrthCorr, oCorr, nOuterCorr, corr, nCorr, cumulativeContErr )
         pass
     

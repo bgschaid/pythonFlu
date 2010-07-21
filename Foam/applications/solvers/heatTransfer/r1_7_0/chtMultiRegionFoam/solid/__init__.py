@@ -27,15 +27,15 @@
 def createSolidMeshes( rp, runTime ):
     
     from Foam.finiteVolume import PtrList_fvMesh, fvMesh
-    solidRegions = PtrList_fvMesh( rp.solidRegionNames.size() )
+    solidRegions = PtrList_fvMesh( rp.solidRegionNames().size() )
     
     from Foam.OpenFOAM import word, fileName, IOobject
     for index in range( solidRegions.size() ):
         from Foam.OpenFOAM import ext_Info, nl
-        ext_Info()<< "Create solid mesh for region " << rp.solidRegionNames[ index ] \
+        ext_Info()<< "Create solid mesh for region " << rp.solidRegionNames()[ index ] \
             << " for time = " << runTime.timeName() << nl << nl
         
-        solidRegions.ext_set(index, fvMesh( IOobject ( word( rp.solidRegionNames[ index ] ),
+        solidRegions.ext_set(index, fvMesh( IOobject ( word( rp.solidRegionNames()[ index ] ),
                                                        fileName( runTime.timeName() ),
                                                        runTime,
                                                        IOobject.MUST_READ ) ) )
@@ -109,6 +109,44 @@ def readSolidMultiRegionPIMPLEControls( mesh ):
     
     return pimple, nNonOrthCorr
 
+
+#-------------------------------------------------------------------------------------------------------
+def readSolidTimeControls( runTime ):
+    from Foam.OpenFOAM import word 
+    maxDi = runTime.controlDict().lookupOrDefault( word( "maxDi" ) , 10.0 )
+    
+    return maxDi
+
+
+#-------------------------------------------------------------------------------------------------------
+def solidRegionDiffNo( mesh, runTime, Cprho, K ):
+    DiNum = 0.0
+    meanDiNum = 0.0
+
+    #- Can have fluid domains with 0 cells so do not test.
+    if mesh.nInternalFaces():
+       from Foam import fvc
+       KrhoCpbyDelta = mesh.deltaCoeffs() * fvc.interpolate( K ) / fvc.interpolate(Cprho);
+       DiNum = KrhoCpbyDelta.internalField().max() * runTime.deltaT().value()
+       meanDiNum = KrhoCpbyDelta.average().value() * runTime.deltaT().value()
+       pass
+    
+    from Foam.OpenFOAM import ext_Info, nl
+    ext_Info() << "Region: " << mesh.name() << " Diffusion Number mean: " << meanDiNum << " max: " << DiNum << nl
+
+    return DiNum
+
+
+#-------------------------------------------------------------------------------------------------------
+def solidRegionDiffusionNo( solidRegions, runTime, rhosCps, Ks ):
+    from Foam.OpenFOAM import GREAT
+    DiNum = -GREAT
+    
+    for regionI in range( solidRegions.size() ):
+        DiNum = max( solidRegionDiffNo( solidRegions[ regionI ], runTime, rhosCps[ regionI ], Ks[ regionI ] ), DiNum )
+        pass
+    
+    return DiNum
 
 #-------------------------------------------------------------------------------------------------------
 def setRegionSolidFields( i, solidRegions, rhos, cps, Ks, Ts ):
