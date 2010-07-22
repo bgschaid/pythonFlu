@@ -91,7 +91,7 @@ def main_standalone( argc, argv ):
     from Foam.OpenFOAM.include import createTime
     runTime = createTime( args )
     
-    from Foam.applications.solvers.heatTransfer.r1_7_0.chtMultiRegionFoam.plugin import regionProperties
+    from Foam.compressible import regionProperties
     rp = regionProperties( runTime )
     
     from Foam.applications.solvers.heatTransfer.r1_7_0.chtMultiRegionFoam.fluid import createFluidMeshes
