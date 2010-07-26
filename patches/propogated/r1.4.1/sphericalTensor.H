@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 1991-2009 OpenCFD Ltd.
+    \\  /    A nd           | Copyright (C) 1991-2007 OpenCFD Ltd.
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,8 +22,8 @@ License
     along with OpenFOAM; if not, write to the Free Software Foundation,
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-Typedef
-    Foam::sphericalTensor
+Type
+    sphericalTensor
 
 Description
     SphericalTensor of scalars.
@@ -47,7 +47,6 @@ namespace Foam
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 typedef SphericalTensor<scalar> sphericalTensor;
-
 #ifndef SWIG
 // Identity tensor
 static const sphericalTensor I(1);
@@ -62,7 +61,7 @@ static const sphericalTensor oneThirdI;
 static const sphericalTensor twoThirdsI;
 #endif
 
-//- Specify data associated with sphericalTensor type are contiguous
+//- Specify data associated with sphericalTensor type is contiguous
 template<>
 inline bool contiguous<sphericalTensor>() {return true;}
 

@@ -143,7 +143,7 @@ public:
 
         //- Return a reference to the selected LES model
 #ifndef SWIG
-        static autoPtr<LESModels> New
+        static autoPtr<LESModel> New
         (
             const volVectorField& U,
             const surfaceScalarField& phi,
