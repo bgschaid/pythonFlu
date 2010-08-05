@@ -48,9 +48,7 @@ c++FLAGS:=$(shell echo $(c++FLAGS) | sed -e"s%-Wold-style-cast %%g")
 LIB_SRC            = $(WM_PROJECT_DIR)/src
 LIB_DIR            = $(WM_PROJECT_DIR)/lib
 LIB_WM_OPTIONS_DIR = $(LIB_DIR)/$(WM_OPTIONS)
-
-#It is another path to OpenFOAM's libs in OpenFOAM-1.5-dev( debian package )
-LIB_WM_OPTIONS_DIR_1.5_dev = $(LIB_DIR)
+LIB_WM_OPTIONS_DIR_BINARY_INSTALL = $(LIB_DIR)
 
 OBJECTS_DIR        = $(MAKE_DIR)/$(WM_OPTIONS)
 CLASSES_DIR        = $(MAKE_DIR)/classes
@@ -79,7 +77,7 @@ __CPPFLAGS__:=$(__CPPFLAGS__) $(PROJECT_INC) @PYTHON_CPPFLAGS@ @PYTHON_CXXFLAGS@
 __LDFLAGS__:=$(__LDFLAGS__) @PYTHON_LDFLAGS@ -lstdc++
 
 ifdef WM_PROJECT_VERSION
-	__LDFLAGS__:=-L$(LIB_WM_OPTIONS_DIR) -L$(LIB_WM_OPTIONS_DIR_1.5_dev) $(PROJECT_LIBS) $(__LDFLAGS__) -lpthread -ldl -lm
+	__LDFLAGS__:=-L$(LIB_WM_OPTIONS_DIR) -L$(LIB_WM_OPTIONS_DIR_BINARY_INSTALL) $(PROJECT_LIBS) $(__LDFLAGS__) -lpthread -ldl -lm
 endif
 
 
