@@ -40,13 +40,14 @@
 %{
     #include "singlePhaseTransportModel.H"
 %}
-
+#if ( __FOAM_VERSION__ != 010500 ) && !( defined ( __DEV_BRANCH__ ) 
 %ignore Foam::singlePhaseTransportModel::nu;
-
+#endif
 %include "singlePhaseTransportModel.H"
 
 
 //--------------------------------------------------------------------------
+#if ( __FOAM_VERSION__ != 010500 ) && !( defined ( __DEV_BRANCH__ )
 %extend Foam::singlePhaseTransportModel
 {
   Foam::volScalarField& ext_nu()
@@ -54,7 +55,7 @@
     return self->nu()();
   }
 }
-
+#endif
 
 //---------------------------------------------------------------------------
 #endif
