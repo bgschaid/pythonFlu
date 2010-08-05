@@ -31,7 +31,7 @@
 
 %ignore Foam::PrimitivePatch< face, SubList, const pointField& >::PrimitivePatch;
 
-#if ( __FOAM_VERSION__ == 010500 ) 
+#if ( __FOAM_VERSION__ == 010500 ) && defined ( __DEV_BRANCH__ ) 
 %ignore Foam::PrimitivePatch< face, SubList, const pointField& >::writeVTK;
 %ignore Foam::PrimitivePatch< face, SubList, const pointField& >::writeVTKNormals;
 #endif
