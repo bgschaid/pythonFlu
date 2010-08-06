@@ -186,7 +186,7 @@ ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010700 ]; then echo 'true'; else echo
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0-dev
    endif
 
-__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0
 endif	
 
 
@@ -197,7 +197,7 @@ ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010600 ]; then echo 'true'; else echo
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6-dev
    endif
 
-__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6
 endif	
 
 
@@ -208,7 +208,7 @@ ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010500 ]; then echo 'true'; else echo
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5-dev
    endif
 
-__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5
 endif	
 
 
