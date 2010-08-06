@@ -178,7 +178,7 @@ $(RECURSIVE_CLEAN_TARGETS):
 
 
 #--------------------------------------------------------------------------------------
-__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/local/r$(__FOAM_PATCH__)
+__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/local/r$(WM_PROJECT_VERSION)
 
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010700 ]; then echo 'true'; else echo 'false'; fi )" "true" 
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0
@@ -192,7 +192,7 @@ ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010500 ]; then echo 'true'; else echo
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5
 endif	
 
-__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.4.1
+__SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.4.1-dev
 
 
 #--------------------------------------------------------------------------------------------
