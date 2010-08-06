@@ -35,7 +35,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev" :
 
 
 #----------------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() == "1.5" :
+if WM_PROJECT_VERSION() == "1.5" or WM_PROJECT_VERSION() == "1.5-dev" :
     if __name__ == "__main__" :
         argv = sys.argv
         if len( argv ) > 1 and argv[ 1 ] == "-test":

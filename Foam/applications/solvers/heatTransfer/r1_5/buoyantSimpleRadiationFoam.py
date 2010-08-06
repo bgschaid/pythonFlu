@@ -277,8 +277,8 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 argv = None
 import sys, os
-
-if os.environ[ "WM_PROJECT_VERSION" ] == "1.5" :
+from Foam import WM_PROJECT_VERSION
+if WM_PROJECT_VERSION() == "1.5" or WM_PROJECT_VERSION() == "1.5-dev" :
     if __name__ == "__main__" :
         argv = sys.argv
         if len(argv) > 1 and argv[ 1 ] == "-test":
@@ -292,7 +292,7 @@ if os.environ[ "WM_PROJECT_VERSION" ] == "1.5" :
     pass
 else:
     from Foam.OpenFOAM import ext_Info, nl
-    ext_Info() <<"\n\n The use buoyantSimpleRadiationFoam It is necessary to SWIG OpenFOAM-1.5\n"    
+    ext_Info() <<"\n\n The use buoyantSimpleRadiationFoam It is necessary to SWIG OpenFOAM-1.5 or OpenFOAM-1.5-dev\n"    
     pass
 
 
