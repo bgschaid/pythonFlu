@@ -34,7 +34,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
 
 
 #---------------------------------------------------------------------------
-if WM_PROJECT_VERSION() == "1.5":
+if WM_PROJECT_VERSION() == "1.5" or WM_PROJECT_VERSION() == "1.5-dev":
    RASModel = incompressible_RASModel
    autoPtr_RASModel = autoPtr_incompressible_RASModel
 
