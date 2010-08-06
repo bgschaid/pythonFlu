@@ -180,18 +180,39 @@ $(RECURSIVE_CLEAN_TARGETS):
 #--------------------------------------------------------------------------------------
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/local/r$(WM_PROJECT_VERSION)
 
-ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010700 ]; then echo 'true'; else echo 'false'; fi )" "true" 
+ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010700 ]; then echo 'true'; else echo 'false'; fi )" "true"
+
+   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0-dev
+   endif
+
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0
 endif	
 
+
+#-----------------------------------
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010600 ]; then echo 'true'; else echo 'false'; fi )" "true" 
+
+   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6-dev
+   endif
+
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6
 endif	
 
+
+#-----------------------------------
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010500 ]; then echo 'true'; else echo 'false'; fi )" "true" 
+
+   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5-dev
+   endif
+
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5
 endif	
 
+
+#-----------------------------------
 __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.4.1-dev
 
 
