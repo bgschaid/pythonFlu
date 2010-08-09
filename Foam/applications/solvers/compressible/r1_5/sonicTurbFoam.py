@@ -193,7 +193,8 @@ def main_standalone( argc, argv ):
     
 #--------------------------------------------------------------------------------------
 import sys, os
-if os.environ["WM_PROJECT_VERSION"] == "1.5" :
+from Foam import FOAM_VERSION
+if FOAM_VERSION() == "010500" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len(argv) > 1 and argv[ 1 ] == "-test":

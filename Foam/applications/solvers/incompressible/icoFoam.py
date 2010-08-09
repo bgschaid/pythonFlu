@@ -25,8 +25,8 @@
 
 #---------------------------------------------------------------------------
 import sys, os
-from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() <= "1.4.1-dev" :
+from Foam import FOAM_VERSION
+if FOAM_VERSION() <= "010401" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -44,7 +44,7 @@ pass
 
 
 #-------------------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() == "1.5" :
+if FOAM_VERSION() == "010500" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -62,7 +62,7 @@ if WM_PROJECT_VERSION() == "1.5" :
 
 
 #-------------------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() == "1.6" :
+if FOAM_VERSION() == "010600" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -80,7 +80,7 @@ if WM_PROJECT_VERSION() == "1.6" :
 
     
 #--------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() >= "1.7.0" :
+if FOAM_VERSION() >= "010700" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":

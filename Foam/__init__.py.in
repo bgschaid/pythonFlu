@@ -36,12 +36,6 @@ def get_module_initializtion_command( the_module_name ) :
 
 
 #----------------------------------------------------------------------------
-def WM_PROJECT_VERSION():
-    import os
-    return os.environ[ "WM_PROJECT_VERSION" ]
-
-
-#-------------------------------------------------------------------------------
 def get_list_versions():
     from Foam import FOAM_VERSION, FOAM_BRANCH
     list_versions = []

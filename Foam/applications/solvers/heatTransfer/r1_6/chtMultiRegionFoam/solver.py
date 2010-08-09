@@ -159,8 +159,8 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 argv = None
 import sys, os
-
-if os.environ[ "WM_PROJECT_VERSION" ] == "1.6" :
+from Foam import FOAM_VERSION
+if FOAM_VERSION() == "010600" :
     if __name__ == "__main__" :
         argv = sys.argv
         

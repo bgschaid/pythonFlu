@@ -58,14 +58,14 @@ def readTimeControls( runTime ):
     adjustTimeStep = Switch( runTime.controlDict().lookup( word( "adjustTimeStep" ) ) )
     maxCo = readScalar( runTime.controlDict().lookup( word( "maxCo" ) ) )
     
-    from Foam import WM_PROJECT_VERSION
-    if WM_PROJECT_VERSION() <="1.5":
+    from Foam import FOAM_VERSION
+    if FOAM_VERSION() <="010500":
        maxDeltaT = GREAT
        if runTime.controlDict().found( word( "maxDeltaT" ) ):
           maxDeltaT = readScalar( runTime.controlDict().lookup( word( "maxDeltaT" ) ) )
           pass
 
-    if WM_PROJECT_VERSION() >="1.6":
+    if FOAM_VERSION() >="010600":
        maxDeltaT = runTime.controlDict().lookupOrDefault( word( "maxDeltaT" ), GREAT, 0, 1 )
        pass
     

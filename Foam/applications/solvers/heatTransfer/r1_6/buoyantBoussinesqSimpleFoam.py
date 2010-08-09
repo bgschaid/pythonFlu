@@ -280,9 +280,9 @@ def main_standalone( argc, argv ):
 
 
 #--------------------------------------------------------------------------------------
-from Foam import WM_PROJECT_VERSION
+from Foam import FOAM_VERSION
 import sys, os
-if WM_PROJECT_VERSION() == "1.6" :
+if FOAM_VERSION() == "010600" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":

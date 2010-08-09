@@ -27,7 +27,7 @@
 argv = None
 import sys, os
 
-from Foam import FOAM_VERSION
+from Foam import FOAM_VERSION, FOAM_BRANCH
 if FOAM_VERSION() <= "010401" :
     from Foam.OpenFOAM import ext_Info
     ext_Info() << "\n\n To use this solver, it is necessary to SWIG OpenFOAM-1.5 or higher\n"    

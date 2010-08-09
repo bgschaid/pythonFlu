@@ -25,8 +25,8 @@
 
 #--------------------------------------------------------------------------------------
 import sys, os
-from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() <= "1.4.1-dev":
+from Foam import FOAM_VERSION
+if FOAM_VERSION() <= "010401":
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -40,7 +40,7 @@ if WM_PROJECT_VERSION() <= "1.4.1-dev":
       from Foam.applications.solvers.compressible.r1_4_1_dev.sonicTurbFoam import *
       pass
    pass
-elif os.environ["WM_PROJECT_VERSION"] == "1.5" :
+elif FOAM_VERSION() == "010500" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":

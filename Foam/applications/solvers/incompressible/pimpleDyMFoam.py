@@ -25,15 +25,15 @@
 
 #---------------------------------------------------------------------------
 import sys, os
-from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() < "1.6" :
+from Foam import FOAM_VERSION
+if FOAM_VERSION() < "010600" :
    from Foam.OpenFOAM import ext_Info
    ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.6 or higher\n"
    pass
 
 
 #--------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() == "1.6" :
+if FOAM_VERSION() == "010600" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -50,7 +50,7 @@ if WM_PROJECT_VERSION() == "1.6" :
    
    
 #--------------------------------------------------------------------------------------
-if WM_PROJECT_VERSION() >= "1.7.0" :
+if FOAM_VERSION() >= "010700" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
