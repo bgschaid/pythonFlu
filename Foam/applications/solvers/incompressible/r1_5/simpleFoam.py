@@ -209,8 +209,8 @@ def main_standalone( argc, argv ):
 
 #--------------------------------------------------------------------------------------
 import os, sys
-from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() == "1.5" :
+from Foam import FOAM_VERSION, FOAM_BRANCH
+if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500"  and FOAM_BRANCH() == "dev") :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":

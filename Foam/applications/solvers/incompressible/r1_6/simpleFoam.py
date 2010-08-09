@@ -60,7 +60,7 @@ def _createFields( runTime, mesh ):
     
 
     from Foam import incompressible
-    from Foam import WM_PROJECT_VERSION
+
     turbulence = incompressible.RASModel.New( U, phi, laminarTransport )
            
     return p, U, phi, turbulence, pRefCell, pRefValue, laminarTransport
@@ -81,7 +81,6 @@ def initConvergenceCheck( simple ):
 #--------------------------------------------------------------------------------------
 def Ueqn( phi, U, p, turbulence, eqnResidual, maxResidual ):
     from Foam import fvm, fvc
-    from Foam import WM_PROJECT_VERSION
     UEqn = fvm.div( phi, U ) + turbulence.divDevReff( U ) 
 
     UEqn.relax()
@@ -214,8 +213,8 @@ def main_standalone( argc, argv ):
 
 #--------------------------------------------------------------------------------------
 import os, sys
-from Foam import WM_PROJECT_VERSION
-if WM_PROJECT_VERSION() >= "1.6" :
+from Foam import FOAM_VERSION
+if FOAM_VERSION() >= "010600" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
