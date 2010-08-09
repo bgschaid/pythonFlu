@@ -23,7 +23,7 @@
 #--------------------------------------------------------------------------------------
 __FOAM_VERSION__ := @FOAM_VERSION@
 
-__DEV_BRANCH__ := @DEV_BRANCH@
+__FOAM_BRANCH__ := @FOAM_BRANCH@
 
 __FOAM_PATCH__:=$(subst 1.4.1-dev,1.4.1,$(WM_PROJECT_VERSION))
 
@@ -182,8 +182,8 @@ __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/local/r$(WM_PROJECT_VERSION)
 
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010700 ]; then echo 'true'; else echo 'false'; fi )" "true"
 
-   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
-   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0-dev
+   ifeq "$(shell if [ x${__FOAM_BRANCH__} != x ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0-${__FOAM_BRANCH__}
    endif
 
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.7.0
@@ -193,8 +193,8 @@ endif
 #-----------------------------------
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010600 ]; then echo 'true'; else echo 'false'; fi )" "true" 
 
-   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
-   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6-dev
+   ifeq "$(shell if [ x${__FOAM_BRANCH__} != x ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6-${__FOAM_BRANCH__}
    endif
 
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.6
@@ -204,8 +204,8 @@ endif
 #-----------------------------------
 ifeq "$(shell if [ ${__FOAM_VERSION__} -ge 010500 ]; then echo 'true'; else echo 'false'; fi )" "true" 
 
-   ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
-   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5-dev
+   ifeq "$(shell if [ x${__FOAM_BRANCH__} != x ]; then echo 'true'; else echo 'false'; fi )" "true" 
+   __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5-${__FOAM_BRANCH__}
    endif
 
    __SWIG_INCLUDES__ +=-I$(pyfoam_root_dir)/patches/propogated/r1.5
@@ -229,8 +229,8 @@ __SWIG_FLAGS__+=-w503 # Can't wrap 'XXX' unless renamed to a valid identifier
 __SWIG_FLAGS__+=-w462 # Unable to set dimensionless array variable
 __SWIG_FLAGS__+=-w473 # Returning a pointer or reference in a director method is not recommended
 
-ifeq "$(shell if [ x${__DEV_BRANCH__} = xyes ]; then echo 'true'; else echo 'false'; fi )" "true" 
-__SWIG_FLAGS__+=-D__DEV_BRANCH__=${__DEV_BRANCH__}
+ifeq "$(shell if [ x${__FOAM_BRANCH__} != x ]; then echo 'true'; else echo 'false'; fi )" "true" 
+__SWIG_FLAGS__+=-D__FOAM_BRANCH__=${__FOAM_BRANCH__}
 endif
 
 ifdef WM_PROJECT_VERSION
