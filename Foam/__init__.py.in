@@ -56,4 +56,37 @@ def get_proper_function( module_path, function_name, default_version ="1.6" ):
 
 
 #--------------------------------------------------------------------------------
-   
+def FOAM_VERSION():
+    import os
+    version = os.environ[ "WM_PROJECT_VERSION" ]
+
+    import re
+    pattern_branch = re.compile( '(-[A-z]*)$' )
+    foam_version = pattern_branch.sub( '', version )
+    
+    pattern_version = re.compile( '\.')
+    
+    foam_version, count = pattern_version.subn( '0', foam_version )
+    foam_version = '0' + foam_version
+    
+    if count == 1:
+       foam_version = foam_version + '00'
+       pass
+
+    return foam_version
+
+#----------------------------------------------------------------------------
+def FOAM_BRANCH():
+    import os
+    version = os.environ[ "WM_PROJECT_VERSION" ]
+    import re
+    pattern_branch = re.compile( '^(\d\.)*\d\-' )
+    foam_branch, count = pattern_branch.subn( '', version )
+    
+    if count == 1:
+       return foam_branch 
+    
+    return ""
+    
+
+#----------------------------------------------------------------------------
