@@ -25,7 +25,7 @@
 
 #--------------------------------------------------------------------------------------
 import sys, os
-from Foam import FOAM_VERSION
+from Foam import FOAM_VERSION, FOAM_BRANCH
 if FOAM_VERSION() <= "010401":
    if __name__ == "__main__" :
       argv = sys.argv

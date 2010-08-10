@@ -234,7 +234,7 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 
 import sys, os
-from Foam import FOAM_VERSION
+from Foam import FOAM_VERSION, FOAM_BRANCH
 if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500" and FOAM_BRANCH() == "dev" ):
    if __name__ == "__main__" :
       argv = sys.argv
