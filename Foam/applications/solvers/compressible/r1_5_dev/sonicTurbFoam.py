@@ -106,7 +106,7 @@ def _pEqn( rho, thermo, UEqn, nNonOrthCorr, psi, U, mesh, phi, p, cumulativeCont
     
     for nonOrth in range( nNonOrthCorr + 1 ) :
         from Foam import fvm
-        pEqn = ( fvm.ddt(psi, p) + fvm.div(phid, p) - fvm.laplacian(rho*rUA, p) )
+        pEqn = ( fvm.ddt(psi, p) + fvm.div(phid, word( "div(phid,p)" ) ) - fvm.laplacian(rho*rUA, p) )
         pEqn.solve()
         if (nonOrth == nNonOrthCorr) :
            phi.ext_assign( pEqn.flux() )
@@ -126,7 +126,6 @@ def _pEqn( rho, thermo, UEqn, nNonOrthCorr, psi, U, mesh, phi, p, cumulativeCont
 
 #--------------------------------------------------------------------------------------
 def main_standalone( argc, argv ):
-
     from Foam.OpenFOAM.include import setRootCase
     args = setRootCase( argc, argv )
 
@@ -194,7 +193,7 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 import sys, os
 from Foam import FOAM_VERSION, FOAM_BRANCH
-if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
+if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "dev":
    if __name__ == "__main__" :
       argv = sys.argv
       if len(argv) > 1 and argv[ 1 ] == "-test":
@@ -207,7 +206,7 @@ if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
    pass
 else :
    from Foam.OpenFOAM import ext_Info
-   ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.5\n"
+   ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.5-dev\n"
    pass
 
 

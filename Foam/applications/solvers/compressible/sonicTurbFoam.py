@@ -25,7 +25,7 @@
 
 #--------------------------------------------------------------------------------------
 import sys, os
-from Foam import FOAM_VERSION
+from Foam import FOAM_VERSION, FOAM_BRANCH
 if FOAM_VERSION() <= "010401":
    if __name__ == "__main__" :
       argv = sys.argv
@@ -40,7 +40,7 @@ if FOAM_VERSION() <= "010401":
       from Foam.applications.solvers.compressible.r1_4_1_dev.sonicTurbFoam import *
       pass
    pass
-elif FOAM_VERSION() == "010500" :
+elif FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -55,9 +55,25 @@ elif FOAM_VERSION() == "010500" :
       from Foam.applications.solvers.compressible.r1_5.sonicTurbFoam import *
       pass
    pass
+elif FOAM_VERSION() == "010500" and FOAM_BRANCH() == "dev":
+   if __name__ == "__main__" :
+      argv = sys.argv
+      if len( argv ) > 1 and argv[ 1 ] == "-test":
+         argv = None
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'compressible', 'sonicTurbFoam', 'prism' )
+         argv = [ __file__, "-case", test_dir ]
+         pass
+      from Foam.applications.solvers.compressible.r1_5_dev.sonicTurbFoam import main_standalone
+      os._exit( main_standalone( len( argv ), argv ) )
+      pass
+   else:
+      from Foam.applications.solvers.compressible.r1_5_dev.sonicTurbFoam import *
+      pass
+   pass
+
 else :
    from Foam.OpenFOAM import ext_Info
-   ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X or 1.5\n"
+   ext_Info() << "\n\n To use this solver it is necessary to SWIG OpenFOAM-1.4.X or 1.5(dev)\n"
    pass
 
 
