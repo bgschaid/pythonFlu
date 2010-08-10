@@ -43,7 +43,7 @@ if FOAM_VERSION() <= "010401":
        
        
 #--------------------------------------------------------------------------------------
-if FOAM_VERSION() == "010500":
+if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500" and FOAM_BRANCH() == "dev" ) :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
