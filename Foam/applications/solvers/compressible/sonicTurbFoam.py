@@ -55,7 +55,7 @@ elif FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
       from Foam.applications.solvers.compressible.r1_5.sonicTurbFoam import *
       pass
    pass
-elif FOAM_VERSION() == "010500" and FOAM_BRANCH() == "dev":
+elif FOAM_VERSION() >= "010500" and FOAM_BRANCH() == "dev":
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
