@@ -64,7 +64,7 @@
 //--------------------------------------------------------------------------------------
 %inline
 {
-#if ( __FOAM_VERSION__ < 010500 ) || ( ( __FOAM_VERSION__ == 010500 ) &&  __FOAM_BRANCH__ != dev )
+#if ( __FOAM_VERSION__ < 010500 ) || ( __FOAM_VERSION__ == 010500  &&  !defined( __FOAM_BRANCH__ ) )
   Foam::t_setRefCell ext_setRefCell( const Foam::volScalarField& field,
                                      const Foam::dictionary& dict,
                                      Foam::label refCelli,
