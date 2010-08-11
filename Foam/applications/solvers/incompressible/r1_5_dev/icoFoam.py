@@ -175,7 +175,7 @@ def main_embedded( argc, argv ):
 
 #--------------------------------------------------------------------------------------
 def main_standalone( argc, argv ):
-
+    print "r1.5-dev"
     from Foam.OpenFOAM.include import setRootCase
     args = setRootCase( argc, argv )
 
@@ -201,7 +201,7 @@ def main_standalone( argc, argv ):
         piso, nCorr, nNonOrthCorr, momentumPredictor, transonic, nOuterCorr, ddtPhiCorr = readPISOControls( mesh )
 
         from Foam.finiteVolume.cfdTools.incompressible import CourantNo
-        CoNum, meanCoNum = CourantNo( mesh, phi, runTime )
+        CoNum, meanCoNum, velMag = CourantNo( mesh, phi, runTime )
 
         from Foam import fvm
         UEqn = ( fvm.ddt( U ) + fvm.div( phi, U ) - fvm.laplacian( nu, U ) )
@@ -258,7 +258,7 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 from Foam import FOAM_VERSION, FOAM_BRANCH
 import os,sys
-if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
+if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "dev" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -271,7 +271,7 @@ if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
    pass
 else:
    from Foam.OpenFOAM import ext_Info
-   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.5 \n "     
+   ext_Info()<< "\nTo use this solver, It is necessary to SWIG OpenFoam1.5-dev \n "     
 
     
 #--------------------------------------------------------------------------------------

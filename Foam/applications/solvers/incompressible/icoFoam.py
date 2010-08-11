@@ -25,7 +25,7 @@
 
 #---------------------------------------------------------------------------
 import sys, os
-from Foam import FOAM_VERSION
+from Foam import FOAM_VERSION, FOAM_BRANCH
 if FOAM_VERSION() <= "010401" :
    if __name__ == "__main__" :
       argv = sys.argv
@@ -44,7 +44,7 @@ pass
 
 
 #-------------------------------------------------------------------------------------------------
-if FOAM_VERSION() == "010500" :
+if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "" :
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
@@ -57,6 +57,24 @@ if FOAM_VERSION() == "010500" :
       pass
    else:
       from Foam.applications.solvers.incompressible.r1_5.icoFoam import *
+      pass
+   pass
+
+
+#-------------------------------------------------------------------------------------------------
+if FOAM_VERSION() == "010500" and FOAM_BRANCH() == "dev" :
+   if __name__ == "__main__" :
+      argv = sys.argv
+      if len( argv ) > 1 and argv[ 1 ] == "-test":
+         argv = None
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'incompressible', 'icoFoam', 'cavity' )
+         argv = [ __file__, "-case", test_dir ]
+         pass
+      from Foam.applications.solvers.incompressible.r1_5_dev.icoFoam import main_standalone
+      os._exit( main_standalone( len( argv ), argv ) )
+      pass
+   else:
+      from Foam.applications.solvers.incompressible.r1_5_dev.icoFoam import *
       pass
    pass
 
