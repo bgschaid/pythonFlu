@@ -46,6 +46,28 @@
 
 
 //---------------------------------------------------------------------------
+%define FOAM_VERSION( CMP, VERSION )
+
+__FOAM_VERSION__ CMP VERSION 
+
+%enddef
+
+//--------------
+%define FOAM_BRANCH_VERSION( NAME, CMP, VERSION ) 
+
+( __FOAM_VERSION__ CMP VERSION  && defined( __FOAM_BRANCH__ ) && __FOAM_BRANCH__ == NAME )
+
+%enddef
+
+//--------------
+%define FOAM_REF_VERSION( CMP, VERSION )
+
+( __FOAM_VERSION__ CMP VERSION && !defined( __FOAM_BRANCH__ ) )
+
+%enddef
+
+
+//---------------------------------------------------------------------------
 %define BAREPTR_TYPEMAP( Type )
 
 %typemap( in ) Type* ( void  *argp = 0, int check = 0, Type* result ) 
