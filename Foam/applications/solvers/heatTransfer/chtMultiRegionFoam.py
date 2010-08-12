@@ -28,19 +28,19 @@ argv = None
 import sys, os
 
 from Foam import FOAM_VERSION
-if FOAM_VERSION() <= "010401" :
+if FOAM_VERSION( "<=", "010401" ):
     from Foam.OpenFOAM import ext_Info
     ext_Info() << "\n\n To use this solver, it is necessary to SWIG OpenFOAM-1.5 or higher\n"    
     pass
 
 
 #--------------------------------------------------------------------------------------
-if FOAM_VERSION() == "010500" :
+if FOAM_VERSION( "==", "010500" ):
     if __name__ == "__main__" :
         argv = sys.argv
         if len( argv ) > 1 and argv[ 1 ] == "-test":
            argv = None
-           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.5', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.5', 'chtMultiRegionFoam', 'multiRegionHeater' )
            argv = [ __file__, "-case", test_dir ]
            pass
         from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solver import main_standalone
@@ -53,12 +53,12 @@ if FOAM_VERSION() == "010500" :
     
 
 #--------------------------------------------------------------------------------------
-if FOAM_VERSION() == "010600" :
+if FOAM_VERSION( '==', "010600" ):
     if __name__ == "__main__" :
         argv = sys.argv
         if len( argv ) > 1 and argv[ 1 ] == "-test":
            argv = None
-           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.6', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
            argv = [ __file__, "-case", test_dir ]
            pass
         from Foam.applications.solvers.heatTransfer.r1_6.chtMultiRegionFoam.solver import main_standalone
@@ -70,12 +70,12 @@ if FOAM_VERSION() == "010600" :
 
 
 #--------------------------------------------------------------------------------------
-if FOAM_VERSION() >= "010700" :
+if FOAM_VERSION( '>=', "010700" ):
     if __name__ == "__main__" :
         argv = sys.argv
         if len( argv ) > 1 and argv[ 1 ] == "-test":
            argv = None
-           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.7.0', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated', 'r1.7.0', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
            argv = [ __file__, "-case", test_dir ]
            pass
         from Foam.applications.solvers.heatTransfer.r1_7_0.chtMultiRegionFoam.solver import main_standalone

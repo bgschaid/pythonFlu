@@ -124,7 +124,8 @@ def main_standalone( argc, argv ):
     DiNum = solidRegionDiffusionNo( solidRegions, runTime, rhosCps, Ks )
     
     runTime, CoNum, DiNum = setInitialMultiRegionDeltaT( adjustTimeStep, runTime, CoNum, DiNum, maxCo, maxDi, maxDeltaT )
-    
+
+    from Foam.OpenFOAM import ext_Info, nl
     while runTime.run() :
         adjustTimeStep, maxCo, maxDeltaT = readTimeControls(runTime)
         
@@ -140,7 +141,7 @@ def main_standalone( argc, argv ):
         runTime, CoNum, DiNum = setMultiRegionDeltaT( adjustTimeStep, runTime, CoNum, DiNum, maxCo, maxDi, maxDeltaT )
                 
         runTime.step()
-        from Foam.OpenFOAM import ext_Info, nl
+        
         ext_Info()<< "Time = " << runTime.timeName() << nl << nl;      
                 
         if nOuterCorr != 1 :
@@ -204,13 +205,13 @@ def main_standalone( argc, argv ):
 argv = None
 import sys, os
 from Foam import FOAM_VERSION
-if FOAM_VERSION() >= "010700" :
+if FOAM_VERSION( ">=", "010700" ):
     if __name__ == "__main__" :
         argv = sys.argv
         
         if len(argv) > 1 and argv[ 1 ] == "-test":
            argv = None
-           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.7.0', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
+           test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated', 'r1.7.0', 'heatTransfer', 'chtMultiRegionFoam', 'multiRegionHeater' )
            argv = [ __file__, "-case", test_dir ]
            pass
         

@@ -306,12 +306,12 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 from Foam import FOAM_VERSION
 import sys, os
-if FOAM_VERSION() >= "010700" :
+if FOAM_VERSION( ">=", "010700" ):
    if __name__ == "__main__" :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.7.0', 'heatTransfer', 'buoyantBoussinesqSimpleFoam', 'iglooWithFridges' )
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated','r1.7.0', 'heatTransfer', 'buoyantBoussinesqSimpleFoam', 'iglooWithFridges' )
          argv = [ __file__, "-case", test_dir ]
          pass
       os._exit( main_standalone( len( argv ), argv ) )
