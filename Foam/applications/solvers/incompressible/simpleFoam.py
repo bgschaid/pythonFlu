@@ -31,7 +31,7 @@ if FOAM_VERSION( "<=", "010401" ):
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'incompressible', 'simpleFoam' )
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'simpleFoam' )
          argv = [ __file__, test_dir, 'pitzDaily3Blocks' ]
          pass
       from Foam.applications.solvers.incompressible.r1_4_1_dev.simpleFoam import main_standalone

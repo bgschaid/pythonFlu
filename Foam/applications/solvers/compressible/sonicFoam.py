@@ -31,8 +31,8 @@ if FOAM_VERSION( "<=", "010401" ):
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'compressible', 'sonicFoam', 'ras' )
-         argv = [ __file__, test_dir, 'prism' ]
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'sonicFoam' )
+         argv = [ __file__, test_dir,  'shockTube' ]
          pass
       from Foam.applications.solvers.compressible.r1_4_1_dev.sonicFoam import main_standalone
       os._exit( main_standalone( len( argv ), argv ) )
