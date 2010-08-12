@@ -53,26 +53,11 @@ def readPISOControls( mesh ):
 
 #---------------------------------------------------------------------------
 def readTimeControls( runTime ):
-    from Foam.OpenFOAM import Switch, word, readScalar, GREAT
+    from Foam import get_proper_function
+    fun = get_proper_function( "Foam.finiteVolume.cfdTools.general.include.readTimeControls_impl",
+                               "readTimeControls" )
+    return fun( runTime )
     
-    adjustTimeStep = Switch( runTime.controlDict().lookup( word( "adjustTimeStep" ) ) )
-    maxCo = readScalar( runTime.controlDict().lookup( word( "maxCo" ) ) )
-    
-    from Foam import FOAM_VERSION
-    if FOAM_VERSION() <="010500":
-       maxDeltaT = GREAT
-       if runTime.controlDict().found( word( "maxDeltaT" ) ):
-          maxDeltaT = readScalar( runTime.controlDict().lookup( word( "maxDeltaT" ) ) )
-          pass
-
-    if FOAM_VERSION() >="010600":
-       maxDeltaT = runTime.controlDict().lookupOrDefault( word( "maxDeltaT" ), GREAT, 0, 1 )
-       pass
-    
-    
-    
-    return adjustTimeStep, maxCo, maxDeltaT
-
 
 #----------------------------------------------------------------------------
 def setInitialDeltaT( runTime, adjustTimeStep, maxCo, maxDeltaT, CoNum ):
