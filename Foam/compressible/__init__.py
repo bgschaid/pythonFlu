@@ -26,8 +26,8 @@ exec get_module_initializtion_command( "compressible_" )
 
 
 #---------------------------------------------------------------------------
-from Foam import FOAM_VERSION, FOAM_BRANCH
-if FOAM_VERSION() <= "010401":
+from Foam import FOAM_VERSION, FOAM_BRANCH_VERSION, FOAM_REF_VERSION
+if FOAM_VERSION( "<=", "010401" ):
    turbulenceModel = compressible_turbulenceModel
    autoPtr_turbulenceModel = autoPtr_compressible_turbulenceModel
    
@@ -35,7 +35,7 @@ if FOAM_VERSION() <= "010401":
 
 
 #---------------------------------------------------------------------------
-if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500"  and FOAM_BRANCH() == "dev" ):
+if FOAM_VERSION( "==", "010500" ) or FOAM_BRANCH_VERSION( "dev", ">=", "010500" ):
    RASModel = compressible_RASModel
    autoPtr_RASModel = autoPtr_compressible_RASModel
    
@@ -43,7 +43,7 @@ if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500"  and FOAM_BRANCH()
 
 
 #----------------------------------------------------------------------------
-if FOAM_VERSION() >= "010600":
+if FOAM_VERSION(  ">=", "010600" ):
    turbulenceModel = compressible_turbulenceModel
    autoPtr_turbulenceModel = autoPtr_compressible_turbulenceModel
 

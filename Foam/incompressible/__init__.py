@@ -26,15 +26,15 @@ exec get_module_initializtion_command( "incompressible_" )
 
 
 #---------------------------------------------------------------------------
-from Foam import FOAM_VERSION, FOAM_BRANCH
-if FOAM_VERSION() <= "010401":
+from Foam import FOAM_VERSION, FOAM_BRANCH_VERSION
+if FOAM_VERSION( "<=", "010401" ):
    turbulenceModel = incompressible_turbulenceModel
    autoPtr_turbulenceModel = autoPtr_incompressible_turbulenceModel
    pass
 
 
 #---------------------------------------------------------------------------
-if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500"  and FOAM_BRANCH() == "dev" ):
+if FOAM_VERSION( "==", "010500" ) or FOAM_BRANCH_VERSION( "dev", ">=", "010500" ):
    RASModel = incompressible_RASModel
    autoPtr_RASModel = autoPtr_incompressible_RASModel
 
@@ -44,7 +44,7 @@ if FOAM_VERSION() == "010500" or ( FOAM_VERSION() >= "010500"  and FOAM_BRANCH()
 
 
 #----------------------------------------------------------------------------
-if FOAM_VERSION() >= "010600":
+if FOAM_VERSION( ">=", "010600" ):
    RASModel = incompressible_RASModel
    autoPtr_RASModel = autoPtr_incompressible_RASModel
 
