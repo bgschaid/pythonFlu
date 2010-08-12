@@ -20,7 +20,7 @@
 
 
 //---------------------------------------------------------------------------
-#if ( __FOAM_VERSION__ < 010500 )
+#if FOAM_VERSION( <, 010500 )
 #ifndef oneField_cxx
 #define oneField_cxx
 
