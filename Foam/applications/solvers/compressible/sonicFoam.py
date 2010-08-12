@@ -64,7 +64,7 @@ if FOAM_BRANCH_VERSION( "dev", ">=", "010500" ) :
       argv = sys.argv
       if len( argv ) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated', 'r1.5-dev', 'sonicFoam', 'forwardStep' )
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated', 'r1.5-dev', 'sonicFoam', 'shockTube' )
          argv = [ __file__, "-case", test_dir ]
          pass
       from Foam.applications.solvers.compressible.r1_5.sonicFoam import main_standalone
