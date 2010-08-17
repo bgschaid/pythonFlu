@@ -24,8 +24,8 @@
 
 
 #---------------------------------------------------------------------------
-from Foam.applications.solvers.compressible.rhopSonicFoam.BCs import rho
-from Foam.applications.solvers.compressible.rhopSonicFoam.BCs import rhoE
+from Foam.applications.solvers.compressible.r1_6.rhopSonicFoam.BCs import rho
+from Foam.applications.solvers.compressible.r1_6.rhopSonicFoam.BCs import rhoE
 
 #---------------------------------------------------------------------------
 def _rhoBoundaryTypes( p ):
@@ -42,8 +42,9 @@ def _rhoBoundaryTypes( p ):
            rhoBoundaryTypes[patchi] = fixedRhoFvPatchScalarField.typeName
            pass
         else:
-           from Foam.applications.solvers.compressible.rhopSonicFoam.BCs.rho import gradientRhoFvPatchScalarField
+           from Foam.applications.solvers.compressible.r1_6.rhopSonicFoam.BCs.rho import gradientRhoFvPatchScalarField
            rhoBoundaryTypes[patchi] = gradientRhoFvPatchScalarField.typeName
+           pass
         pass
           
     return pbf, rhoBoundaryTypes
@@ -55,7 +56,7 @@ def _rhoUboundaryTypes( U ):
     rhoUboundaryTypes = Ubf.types()
     for patchi in range( rhoUboundaryTypes.size() ):
         if Ubf[patchi].fixesValue():
-           from Foam.applications.solvers.compressible.rhopSonicFoam.BCs.rhoU import fixedRhoUFvPatchVectorField
+           from Foam.applications.solvers.compressible.r1_6.rhopSonicFoam.BCs.rhoU import fixedRhoUFvPatchVectorField
            # fixedRhoUFvPatchVectorField not implemented yet
            rhoUboundaryTypes[ patchi ] = fixedRhoUFvPatchVectorField.typeName
            pass
@@ -72,7 +73,7 @@ def _rhoEboundaryTypes( T ):
            rhoEboundaryTypes[ patchi ] = fixedRhoEFvPatchScalarField.typeName
            pass
         else:
-           from Foam.applications.solvers.compressible.rhopSonicFoam.BCs.rhoE import mixedRhoEFvPatchScalarField
+           from Foam.applications.solvers.compressible.r1_6.rhopSonicFoam.BCs.rhoE import mixedRhoEFvPatchScalarField
            rhoEboundaryTypes[ patchi ] = mixedRhoEFvPatchScalarField.typeName
            pass
         pass
@@ -339,8 +340,9 @@ def main_standalone( argc, argv ):
         
         from Foam.finiteVolume.cfdTools.general.include import setDeltaT
         runTime = setDeltaT( runTime, adjustTimeStep, maxCo, maxDeltaT, CoNum )
-        
+
         for outerCorr in range( nOuterCorr):
+
             magRhoU.ext_assign( rhoU.mag() )
             H.ext_assign( ( rhoE + p ) / rho )
             
@@ -360,8 +362,9 @@ def main_standalone( argc, argv ):
             from Foam import fv, fvc
             rhoUEqn = fvm.ddt(rhoU) + fv.gaussConvectionScheme_vector( mesh, phiv, rhoUScheme ).fvmDiv( phiv, rhoU )
             solve( rhoUEqn == -fvc.grad( p ) )
-            
+
             solve( fvm.ddt( rhoE ) + mvConvection.fvmDiv( phiv, rhoE ) == - mvConvection.fvcDiv( phiv, p ) )
+
             T.ext_assign( (rhoE - 0.5 * rho * ( rhoU / rho ).magSqr() ) / Cv / rho )
             psi.ext_assign( 1.0 / ( R * T ) )
             p.ext_assign( rho / psi )
@@ -389,20 +392,21 @@ def main_standalone( argc, argv ):
                 
                 resetPhiPatches( phi, rhoU, mesh )
                 rhof = mvConvection.interpolationScheme()()(rho).interpolate(rho)
+
                 phiv.ext_assign( phi/rhof )
                 
                 pEqn = fvm.ddt( psi, p ) + mvConvection.fvcDiv( phiv, rho ) + fvc.div( phiGradp ) - fvm.laplacian( rrhoUAf, p )
                 
                 pEqn.solve()
-                
                 phi.ext_assign( phi + phiGradp + pEqn.flux() )
                 rho.ext_assign( psi * p )
                 
-                rhof.ext_assign( mvConvection.interpolationScheme()()( rho).interpolate(rho) )
+                rhof.ext_assign( mvConvection.interpolationScheme()()( rho ).interpolate(rho) )
                 phiv.ext_assign( phi / rhof )
                 
                 rhoU.ext_assign( HbyA - rrhoUA * fvc.grad(p) )
                 rhoU.correctBoundaryConditions()
+
                 pass
             pass
         
@@ -423,12 +427,12 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 import sys, os
 from Foam import FOAM_VERSION
-if FOAM_VERSION() >= "010600":
+if FOAM_VERSION( ">=", "010600" ):
    if __name__ == "__main__" :
       argv = sys.argv
       if len(argv) > 1 and argv[ 1 ] == "-test":
          argv = None
-         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'r1.6', 'compressible', 'rhoCentralFoam', 'forwardStep' )
+         test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'propogated', 'r1.6', 'compressible', 'rhopSonicFoam', 'shockTube' )
          argv = [ __file__, "-case", test_dir ]
          pass
       os._exit( main_standalone( len( argv ), argv ) )

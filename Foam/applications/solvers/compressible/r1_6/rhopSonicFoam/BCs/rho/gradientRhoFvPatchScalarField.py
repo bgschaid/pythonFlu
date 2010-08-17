@@ -289,7 +289,6 @@ class gradientRhoFvPatchScalarField( fixedGradientFvPatchScalarField ):
            pp = volScalarField.ext_lookupPatchField( self.patch(), word( "p" ) )
            
            self.gradient().ext_assign( psip * pp.ext_snGrad() + psip.ext_snGrad() * pp )
-
            fixedGradientFvPatchScalarField.updateCoeffs( self )
         except Exception as exc:
             import sys, traceback
@@ -300,9 +299,9 @@ class gradientRhoFvPatchScalarField( fixedGradientFvPatchScalarField ):
 
 
     #-----------------------------------
-    def write( self ):
+    def write( self, os ):
         from Foam.finiteVolume import fvPatchScalarField
-        fixedGradientFvPatchScalarField.write( self, os)
+        fixedGradientFvPatchScalarField.write( self , os)
         self.writeEntry( word( "value" ), os )
         pass
               

@@ -111,10 +111,9 @@ class mixedRhoEFvPatchScalarField( mixedFvPatchScalarField ):
         iF = args[ argc ]; argc += 1
         
         mixedFvPatchScalarField.__init__( self, p, iF )
-
         self.refValue().ext_assign( 0.0 )
         self.refGrad().ext_assign( 0.0 )
-        self.valueFraction().ext_assign( 1.0 )
+        self.valueFraction().ext_assign( 0.0 )
        
         return self
         
@@ -234,14 +233,16 @@ class mixedRhoEFvPatchScalarField( mixedFvPatchScalarField ):
         
     #------------------------------------------------------------------------------------
     def write( self, os ) :
+        from Foam.finiteVolume import fvPatchScalarField
         fvPatchScalarField.write( self, os )
         
         from Foam.OpenFOAM import keyType, word, token
-        os.writeKeyword( keyType( "valueFraction" ) ) << self.valueFraction() << token( token.END_STATEMENT ) << nl
-        os.writeKeyword( keyType( "refValue" ) ) << self.refValue() << token( token.END_STATEMENT ) << nl
-        os.writeKeyword( keyType( "refGrad" ) ) << self.refGrad() << token( token.END_STATEMENT ) << nl
         
-        self.writeEntry("value", os);
+        os.writeKeyword( keyType( word( "valueFraction" ) ) ) << self.valueFraction() << token( token.END_STATEMENT ) << nl
+        os.writeKeyword( keyType( word( "refValue" ) ) ) << self.refValue() << token( token.END_STATEMENT ) << nl
+        os.writeKeyword( keyType( word( "refGrad" ) ) ) << self.refGrad() << token( token.END_STATEMENT ) << nl
+        
+        self.writeEntry( word( "value" ), os );
         
         pass
 
@@ -325,8 +326,9 @@ class mixedRhoEFvPatchScalarField( mixedFvPatchScalarField ):
     #------------------------------------------------------------------------------------
     def updateCoeffs( self ) :
         try:
+            
             if self.updated() :
-                return
+               return
             from Foam.finiteVolume import volScalarField
             from Foam.OpenFOAM import word
             rhop = volScalarField.ext_lookupPatchField( self.patch(), word( "rho" ) )
@@ -338,18 +340,16 @@ class mixedRhoEFvPatchScalarField( mixedFvPatchScalarField ):
             Tp = T.ext_boundaryField()[patchi] 
             
             Tp.evaluate()
-            
+
             from Foam.OpenFOAM import IOdictionary
             thermodynamicProperties = IOdictionary.ext_lookupObject( self.db(), word( "thermodynamicProperties" ) )
             
             from Foam.OpenFOAM import dimensionedScalar
             Cv = dimensionedScalar( thermodynamicProperties.lookup( word( "Cv" ) ) )
-            
+                   
             self.valueFraction().ext_assign( rhop.ext_snGrad() / ( rhop.ext_snGrad() -  rhop * self.patch().deltaCoeffs()  ) )
-                        
-            self.refValue().ext_assign( 0.5 * rhop * (rhoUp/rhop).magSqr() )
+            self.refValue().ext_assign( 0.5 * rhop * ( rhoUp / rhop ).magSqr() )
 
-            
             self.refGrad().ext_assign( rhop * Cv.value() * Tp.ext_snGrad() +\
                                        ( self.refValue() - ( 0.5 * rhop.patchInternalField()\
                                                           * ( rhoUp.patchInternalField() /rhop.patchInternalField() ).magSqr() ) ) * self.patch().deltaCoeffs() )
