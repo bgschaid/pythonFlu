@@ -121,6 +121,35 @@
   {
     return  get_ref( self ) / theArg; 
   }
+  
+  Foam::tmp< Foam::Field< Foam::scalar > > mag()
+  {
+    return Foam::mag( get_ref( self ) );
+  }
+  Foam::tmp< Foam::Field< Foam::scalar > > magSqr()
+  {
+    return Foam::magSqr( get_ref( self ) );
+  }
+  Foam::Type gSum()
+  {
+    return Foam::gSum( get_ref( self ) );
+  }
+  Foam::Type gMin()
+  {
+    return Foam::gMin( get_ref( self ) );
+  }
+  Foam::Type gMax()
+  {
+    return Foam::gMax( get_ref( self ) );
+  }
+  Foam::Type gAverage()
+  {
+    return Foam::gAverage( get_ref( self ) );
+  }
+  Foam::Type max()
+  {
+    return Foam::max( get_ref( self ) );
+  }
 }
 %enddef
 
@@ -147,35 +176,7 @@
   {
     return new Foam::Field< Foam::Type >( keyword, dict, size );
   }
-
-  Foam::tmp< Foam::Field< Foam::scalar > > mag()
-  {
-    return Foam::mag( *self );
-  }
-  Foam::tmp< Foam::Field< Foam::scalar > > magSqr()
-  {
-    return Foam::mag( *self );
-  }
-  Foam::Type gSum()
-  {
-    return Foam::gSum( *self );
-  }
-  Foam::Type gMin()
-  {
-    return Foam::gMin( *self );
-  }
-  Foam::Type gMax()
-  {
-    return Foam::gMax( *self );
-  }
-  Foam::Type gAverage()
-  {
-    return Foam::gAverage( *self );
-  }
-  Foam::Type max()
-  {
-    return Foam::max( *self );
-  }
+ 
 }
 %enddef
 
