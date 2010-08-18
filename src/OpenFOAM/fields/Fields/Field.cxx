@@ -115,10 +115,6 @@
   {
     return get_ref( self ) - theArg;
   }
-  Foam::tmp< Foam::Field< Foam::Type > > __rsub__( const Foam::Field< Foam::Type >& theArg)
-  {
-    return theArg - get_ref( self );
-  }
   Foam::tmp< Foam::Field< Foam::Type > > __div__( const Foam::Field< Foam::scalar >& theArg)
   {
     return get_ref( self ) / theArg;
@@ -206,6 +202,7 @@ NO_TMP_TYPEMAP_FIELD( Field< Foam::tensor > );
 
 %extend Foam::Field< Foam::Type >__COMMON_FIELD_TEMPLATE_OPERATOR( Type );
 %extend Foam::tmp< Foam::Field< Foam::Type > >__COMMON_FIELD_TEMPLATE_OPERATOR( Type );
+%extend Foam::ext_tmp< Foam::Field< Foam::Type > >__COMMON_FIELD_TEMPLATE_OPERATOR( Type );
 
 %include "src/OpenFOAM/db/IOstreams/IOstreams/Ostream.cxx"
 
@@ -220,16 +217,6 @@ NO_TMP_TYPEMAP_FIELD( Field< Foam::tensor > );
   {
     return get_ref( self ) * theArg;
   }
-  
-  Foam::tmp< Foam::Field< Foam::scalar > > __rmul__( const Foam::Field< Foam::scalar >& theArg)
-  {
-    return theArg * get_ref( self );
-  }
-  Foam::tmp< Foam::Field< Foam::scalar > > __rdiv__( const Foam::Field< Foam::scalar >& theArg)
-  {
-    return  theArg / get_ref( self );
-  }
-  
 }
 
 %enddef
@@ -241,7 +228,7 @@ NO_TMP_TYPEMAP_FIELD( Field< Foam::tensor > );
 FIELD_TEMPLATE_FUNC( scalar );
 %extend Foam::Field< Foam::scalar >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
 %extend Foam::tmp< Foam::Field< Foam::scalar > >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
-
+%extend Foam::ext_tmp< Foam::Field< Foam::scalar > >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
 %enddef
 
 //---------------------------------------------------------------------------
