@@ -28,7 +28,6 @@ def createFluidMeshes( rp, runTime ) :
 
     from Foam.finiteVolume import fvMesh, PtrList_fvMesh
     fluidRegions = PtrList_fvMesh( rp.fluidRegionNames.size() )
-    
     from Foam.OpenFOAM import word, fileName, IOobject
     for index in range( rp.fluidRegionNames.size() ) :
 
@@ -38,30 +37,29 @@ def createFluidMeshes( rp, runTime ) :
         mesh = fvMesh( IOobject( rp.fluidRegionNames[ index ],
                                  fileName( runTime.timeName() ),
                                  runTime,
-                                 IOobject.MUST_READ ) )
+                                 IOobject.MUST_READ ) ) 
+
         fluidRegions.ext_set( index, mesh )
         # Force calculation of geometric properties to prevent it being done
         # later in e.g. some boundary evaluation
         # (void)fluidRegions[i].weights();
         # (void)fluidRegions[i].deltaCoeffs();
         
-        from Foam.OpenFOAM import IOdictionary
+        from Foam.OpenFOAM import IOdictionary, autoPtr_IOdictionary
         # Attach environmental properties to each region
-        environmentalProperties = IOdictionary( IOobject( word( "environmentalProperties" ),
-                                                          fileName( runTime.constant() ),
-                                                          fluidRegions[ index ],
-                                                          IOobject.MUST_READ,
-                                                          IOobject.NO_WRITE )  )
+        environmentalProperties = autoPtr_IOdictionary( IOdictionary( IOobject( word( "environmentalProperties" ),
+                                                                                fileName( runTime.constant() ),
+                                                                                fluidRegions[ index ],
+                                                                                IOobject.MUST_READ,
+                                                                                IOobject.NO_WRITE ) ) )
         
-        
-        #environmentalProperties.store()
-        pass
- 
-    return fluidRegions, environmentalProperties
+        environmentalProperties.ptr().store()
+                
+    return fluidRegions
     
     
 #-------------------------------------------------------------------
-def createFluidFields( fluidRegions, runTime, rp, environmentalProperties ) :
+def createFluidFields( fluidRegions, runTime, rp ) :
     # Initialise fluid field pointer lists
     from Foam.thermophysicalModels import PtrList_basicThermo
     thermof = PtrList_basicThermo( fluidRegions.size() )
@@ -118,7 +116,7 @@ def createFluidFields( fluidRegions, runTime, rp, environmentalProperties ) :
                                                        IOobject.AUTO_WRITE ),
                                              thermof[ index ].rho() ) )
         
-        ext_Info()<< "    Adding to KFluid\n" << nl
+        ext_Info()<< "    Adding to Kf\n" << nl
         Kf.ext_set( index, volScalarField( IOobject( word( "K" ),
                                                  fileName( runTime.timeName() ),
                                                  fluidRegions[ index ],
@@ -155,15 +153,7 @@ def createFluidFields( fluidRegions, runTime, rp, environmentalProperties ) :
                                                        thermof[ index ].p() ) ) )
         
         from Foam.OpenFOAM import IOdictionary
-        #----------------------------
-        environmentalProperties1 = IOdictionary( IOobject( word( "environmentalProperties" ),
-                                                          fileName( runTime.constant() ),
-                                                          fluidRegions[ index ],
-                                                          IOobject.MUST_READ,
-                                                          IOobject.NO_WRITE ) )
-        #environmentalProperties1.store()
-        #------------------------------------
-        #environmentalProperties = IOdictionary.ext_lookupObject( fluidRegions[ index ], word( "environmentalProperties" ) )
+        environmentalProperties = IOdictionary.ext_lookupObject( fluidRegions[ index ], word( "environmentalProperties" ) )
         
         from Foam.OpenFOAM import dimensionedVector
         g = dimensionedVector( environmentalProperties.lookup( word( "g" ) ) )
@@ -275,7 +265,7 @@ def compressibleContinuityErrors( cumulativeContErr, rho, thermo ) :
     ext_Info()<< "time step continuity errors (" << regionName << ")" \
         << ": sum local = " << sumLocalContErr \
         << ", global = " << globalContErr \
-        << ", cumulative = " << cumulativeContErr[i] \
+        << ", cumulative = " << cumulativeContErr \
         << nl
         
     return cumulativeContErr
@@ -328,8 +318,8 @@ def solveEnthalpyEquation( rho, DpDt, phi, turb, thermo ):
     thermo.correct()
     
     from Foam.OpenFOAM import ext_Info, nl
-    ext_Info() << "Min/max T:" << thermo.T().ext_min().value() << ' ' \
-        << thermo.T().ext_max().value() << nl
+    ext_Info() << "Min/max T:" << thermo.T().ext_min() << ' ' \
+        << thermo.T().ext_max() << nl
         
     return hEqn
 
@@ -337,7 +327,6 @@ def solveEnthalpyEquation( rho, DpDt, phi, turb, thermo ):
 def fun_hEqn( i, rhof, DpDtf, phif, turbf, thermof ) :
     
     hEqn = solveEnthalpyEquation( rhof[ i ], DpDtf[ i ], phif[ i ], turbf[ i ], thermof[ i ] )
-  
     return hEqn
 
 
@@ -350,13 +339,12 @@ def fun_pdEqn( corr, nCorr, nNonOrthCorr, closedVolume, pd, pRef, rho, psi, rUA,
         from Foam import fvc, fvm
         pdEqn =  fvm.ddt( psi, pd ) + fvc.ddt( psi ) * pRef + fvc.ddt(psi, rho) * gh + fvc.div( phi ) - fvm.laplacian( rho * rUA, pd )
         
-        # pdEqn.solve()
+        pdEqn.solve()
         if corr == nCorr-1 and nonOrth == nNonOrthCorr :
            from Foam.OpenFOAM import word 
            pdEqn.solve( pd.mesh().solver( word( str( pd.name() ) + "Final" ) ) )
            pass
         else:
-           print "2222"
            pdEqn.solve( pd.mesh().solver( pd.name() ) )
            pass
 
@@ -367,7 +355,7 @@ def fun_pdEqn( corr, nCorr, nNonOrthCorr, closedVolume, pd, pRef, rho, psi, rUA,
 
 
 #--------------------------------------------------------------------------------------------------------
-def fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, Kf, initialMassf, UEqn, pRef, corr, nCorr, nNonOrthCorr, cumulativeContErr ) :
+def fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, Kf, DpDtf, turb, initialMassf, UEqn, pRef, corr, nCorr, nNonOrthCorr, cumulativeContErr ) :
     
     closedVolume = False
 
@@ -389,6 +377,8 @@ def fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, Kf, initialMas
     # Update pressure field (including bc)
     from Foam.OpenFOAM import word
     thermof[i].p() == pdf[ i ] + rhof[ i ] * ghf[ i ] + pRef
+    
+    from Foam.finiteVolume import surfaceScalarField
     DpDtf[i].ext_assign( fvc.DDt( surfaceScalarField( word( "phiU" ), phif[ i ] / fvc.interpolate( rhof[ i ] ) ), thermof[i].p() ) )
 
     # Update continuity errors
@@ -401,7 +391,7 @@ def fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, Kf, initialMas
     # For closed-volume cases adjust the pressure and density levels
     # to obey overall mass continuity
     if (closedVolume):
-       from Foam.OpenFOAM import DimensionedScalar, dimMass
+       from Foam.OpenFOAM import dimensionedScalar, dimMass
        thermof[i].p().ext_assign( thermof[i].p() + 
                                   ( dimensionedScalar( word( "massIni" ),
                                                        dimMass,
@@ -428,8 +418,8 @@ def solveFluid( i, fluidRegions, pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, 
         
         #--- PISO loop
         for corr in range( nCorr ):
-            #cumulativeContErr = fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, \
-            #                              Kf, initialMassf, UEqn, pRef, corr, nCorr, nNonOrthCorr, cumulativeContErr )
+            cumulativeContErr = fun_pEqn( i, fluidRegions, Uf, pdf, rhof, thermof, phif, ghf, \
+                                          Kf, DpDtf, turb, initialMassf, UEqn, pRef, corr, nCorr, nNonOrthCorr, cumulativeContErr )
             pass
         pass
     

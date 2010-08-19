@@ -284,6 +284,7 @@ class solidWallHeatFluxTemperatureCoupledFvPatchScalarField( fixedGradientFvPatc
     #------------------------------------------------------------------------------
     def write( self, os ):
         try:
+           from Foam.finiteVolume import fvPatchScalarField
            fvPatchScalarField.write(self, os)
            self.coupleManager_.writeEntries( os )
         

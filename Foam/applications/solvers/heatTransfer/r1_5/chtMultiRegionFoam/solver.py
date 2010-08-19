@@ -24,8 +24,6 @@
 
 
 #------------------------------------------------------------------------------------
-# To import corresponding plugin first
-#from Foam.applications.solvers.heatTransfer.chtMultiRegionFoam import plugin
 from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam import derivedFvPatchFields
 
 
@@ -36,19 +34,18 @@ def main_standalone( argc, argv ):
     args = setRootCase( argc, argv )
 
     from Foam.OpenFOAM.include import createTime
-    runTime = createTime( args )
-
+    runTime = createTime( args )    
+    
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam import regionProperties
     rp = regionProperties( runTime )
 
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.fluid import createFluidMeshes
-    fluidRegions, environmentalProperties = createFluidMeshes( rp, runTime )
+    fluidRegions = createFluidMeshes( rp, runTime )
     
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solid import createSolidMeshes
     solidRegions = createSolidMeshes( rp, runTime )
-    
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.fluid import createFluidFields
-    pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMassf, pRef = createFluidFields( fluidRegions, runTime, rp, environmentalProperties )
+    pdf, thermof, rhof, Kf, Uf, phif, turb, DpDtf, ghf, initialMassf, pRef = createFluidFields( fluidRegions, runTime, rp )
     
     from Foam.applications.solvers.heatTransfer.r1_5.chtMultiRegionFoam.solid import createSolidField
     rhos, cps, rhosCps, Ks, Ts = createSolidField( solidRegions, runTime )
@@ -80,7 +77,6 @@ def main_standalone( argc, argv ):
           from Foam.finiteVolume.cfdTools.general.include import setDeltaT   
           runTime = setDeltaT( runTime, adjustTimeStep, maxCo, maxDeltaT, CoNum )
           pass
-        
        
        runTime.step()
        ext_Info()<< "Time = " << runTime.timeName() << nl << nl
@@ -115,7 +111,9 @@ def main_standalone( argc, argv ):
        
 
     ext_Info() << "End\n"
-    
+    pass
+
+       
     import os
     return os.EX_OK
 

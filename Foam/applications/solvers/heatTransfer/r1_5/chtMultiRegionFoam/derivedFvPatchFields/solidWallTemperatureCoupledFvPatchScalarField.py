@@ -303,7 +303,7 @@ class solidWallTemperatureCoupledFvPatchScalarField( fixedValueFvPatchScalarFiel
            Kw = volScalarField.ext_lookupPatchField( self.patch(), self.KName_ )
            Tw = self
         
-           return Tw.snGrad()*self.patch().magSf()*Kw
+           return Tw.ext_snGrad()*self.patch().magSf()*Kw
         except Exception, exc:
             import sys, traceback
             traceback.print_exc( file = sys.stdout )
