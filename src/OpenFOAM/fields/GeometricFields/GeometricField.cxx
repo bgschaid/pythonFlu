@@ -57,7 +57,9 @@
 
 %define __COMMON_GEOMETRIC_FIELD_TEMPLATE_FUNC__( Type, TPatchField, TMesh )
 {
-    OBJECTREGISTRY_TEMPLATE_3_EXTENDS( GeometricField, Type, TPatchField, TMesh )
+    OBJECTREGISTRY_TEMPLATE_3_EXTENDS( GeometricField, Type, TPatchField, TMesh );
+    
+    ISINSTANCE_TEMPLATE_3_EXTEND( GeometricField, Type, TPatchField, TMesh );
     
     static const TPatchField< Type >&
     ext_lookupPatchField(const Foam::fvPatch& thePatch, const word& theName )
