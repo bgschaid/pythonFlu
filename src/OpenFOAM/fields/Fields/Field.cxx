@@ -107,6 +107,14 @@
   {
     return theArg * get_ref( self );
   }
+  Foam::tmp< Foam::Field< Foam::Type > > __mul__( const Foam::Field< Foam::scalar >& theArg)
+  {
+    return get_ref( self ) * theArg;
+  }
+  Foam::tmp< Foam::Field< Foam::Type > > __rmul__( const Foam::Field< Foam::scalar >& theArg)
+  {
+    return theArg * get_ref( self );
+  }
   Foam::tmp< Foam::Field< Foam::Type > > __add__( const Foam::Field< Foam::Type >& theArg)
   {
     return get_ref( self ) + theArg;
@@ -183,7 +191,11 @@
   {
     return new Foam::Field< Foam::Type >( keyword, dict, size );
   }
- 
+  Foam::Field< Foam::Type >( const Foam::Field< Foam::Type >& theField )
+  {
+    return new Foam::Field< Foam::Type >( theField );
+  }
+
 }
 %enddef
 
@@ -211,24 +223,8 @@ NO_TMP_TYPEMAP_FIELD( Field< Foam::tensor > );
 %enddef
 
 //--------------------------------------------------------------------------
-%define __SCALAR_FIELD_TEMPLATE_OPERATOR__
-{
-  Foam::tmp< Foam::Field< Foam::scalar > > __mul__( const Foam::Field< Foam::scalar >& theArg)
-  {
-    return get_ref( self ) * theArg;
-  }
-}
-
-%enddef
-
-
-//--------------------------------------------------------------------------
 %define SCALAR_FIELD_TEMPLATE_FUNC
-
 FIELD_TEMPLATE_FUNC( scalar );
-%extend Foam::Field< Foam::scalar >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
-%extend Foam::tmp< Foam::Field< Foam::scalar > >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
-%extend Foam::ext_tmp< Foam::Field< Foam::scalar > >__SCALAR_FIELD_TEMPLATE_OPERATOR__;
 %enddef
 
 //---------------------------------------------------------------------------
@@ -247,6 +243,10 @@ FIELD_TEMPLATE_FUNC( scalar );
     return theArg & get_ref( self );
   }
   Foam::tmp< Foam::Field< Foam::scalar > > __and__( const Foam::Field< Foam::vector >& theArg )
+  {
+    return  get_ref( self ) & theArg; 
+  }
+  Foam::tmp< Foam::Field< Foam::vector > > __and__( const Foam::Field< Foam::tensor >& theArg )
   {
     return  get_ref( self ) & theArg; 
   }
@@ -271,6 +271,10 @@ FIELD_TEMPLATE_FUNC( vector );
   Foam::tmp< Foam::Field< Foam::tensor > > ext_T()
   {
     return self->T();
+  }
+  Foam::tmp< Foam::Field< Foam::scalar > > tr()
+  {
+    return Foam::tr( *self );
   }
 } 
 %enddef
