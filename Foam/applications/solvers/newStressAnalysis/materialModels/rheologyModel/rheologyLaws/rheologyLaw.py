@@ -26,14 +26,22 @@ class rheologyLaw:
         from Foam.OpenFOAM import word, dictionary
         from Foam.finiteVolume import volSymmTensorField 
         
-        if name.__class__ != word :
-           raise AttributeError("name.__class__ !== word")
+        try:
+            name = word( str( name ) )
+        except ValueError:
+           raise AttributeError("The second arg is not string")
         
-        if sigma.__class__ != volSymmTensorField :
-           raise AttributeError("sigma.__class__ != volSymmTensorField")
+        from Foam.finiteVolume import volSymmTensorField
+        try:
+            volSymmTensorField.ext_isinstance( sigma )
+        except TypeError:
+            raise AssertionError( "sigma != volSymmTensorField" )
            
-        if dict_.__class__ != dictionary :
-           raise AttributeError("dict_.__class__ != dictionary")
+        from Foam.OpenFOAM import dictionary
+        try:
+            dictionary.ext_isinstance( dict_ )
+        except TypeError:
+            raise AssertionError( "dict_ != dictionary" )
           
         self.name_ = name
         self.sigma_ = sigma
@@ -68,16 +76,23 @@ class rheologyLaw:
     #- Return a reference to the selected rheology model
     @staticmethod
     def New( name, sigma, dict_ ):
-        from Foam.OpenFOAM import word, dictionary
+        from Foam.OpenFOAM import dictionary, word
         from Foam.finiteVolume import volSymmTensorField 
-        if name.__class__ != word :
-           raise AttributeError("name.__class__ !== word")
-        
-        if sigma.__class__ != volSymmTensorField :
-           raise AttributeError("sigma.__class__ != volSymmTensorField")
+        try:
+            name = word( str( name ) )
+        except ValueError:
+           raise AttributeError("The second arg is not string")
+       
+        try:
+            volSymmTensorField.ext_isinstance( sigma )
+        except TypeError:
+            raise AssertionError( "sigma != volSymmTensorField" )
            
-        if dict_.__class__ != dictionary :
-           raise AttributeError("dict_.__class__ != dictionary")
+        from Foam.OpenFOAM import dictionary
+        try:
+            dictionary.ext_isinstance( dict_ )
+        except TypeError:
+            raise AssertionError( "dict_ != dictionary" )
            
         rheoTypeName = dict_.lookup( word( "type" ) )
         

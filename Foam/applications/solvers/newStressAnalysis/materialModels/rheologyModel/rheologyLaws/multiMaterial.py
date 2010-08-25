@@ -30,14 +30,21 @@ class multiMaterial( rheologyLaw, list ):
     def __init__( self, name, sigma, dict_ ):
         from Foam.OpenFOAM import word, dictionary
         from Foam.finiteVolume import volSymmTensorField
-        if name.__class__ != word :
-           raise AttributeError("name.__class__ !== word")
+        try:
+            name = word( str( name ) )
+        except ValueError:
+           raise AttributeError("The second arg is not string")
+       
+        try:
+            volSymmTensorField.ext_isinstance( sigma )
+        except TypeError:
+            raise AssertionError( "sigma != volSymmTensorField" )
            
-        if  sigma.__class__ != volSymmTensorField :
-            raise AttributeError("sigma.__class__ != volSymmTensorField")
-            
-        if dict_.__class__ != dictionary :
-           raise AttributeError("dict_.__class__ != dictionary")
+        from Foam.OpenFOAM import dictionary
+        try:
+            dictionary.ext_isinstance( dict_ )
+        except TypeError:
+            raise AssertionError( "dict_ != dictionary" )
 
         rheologyLaw.__init__(self, name, sigma, dict_ )
       
@@ -108,15 +115,17 @@ class multiMaterial( rheologyLaw, list ):
                                            IOobject.NO_READ,
                                            IOobject.NO_WRITE ),
                                  self.mesh(),
-                                 dimensionedScalar( word( "zeroRho" ), dimDensity, 0 ),
+                                 dimensionedScalar( word( "zeroRho" ), dimDensity, 0.0 ),
                                  zeroGradientFvPatchScalarField.typeName )
         
         #Accumulate data for all fields
         from Foam.OpenFOAM import ext_Info 
         
         for lawI in self:
-            result.internalField().ext_assign( result.internalField() + self.indicator( self.index( lawI ) ) * lawI.rho().internalField() )
-        
+            # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+            lawI_rho = lawI.rho()
+            result.internalField().ext_assign( result.internalField() + self.indicator( self.index( lawI ) ) * lawI_rho.internalField() )
+            
         result.correctBoundaryConditions()
         
         return result
@@ -142,13 +151,15 @@ class multiMaterial( rheologyLaw, list ):
                                            IOobject.NO_READ,
                                            IOobject.NO_WRITE ),
                                  self.mesh(),
-                                 dimensionedScalar( word( "zeroE" ), dimForce/dimArea, 0),
+                                 dimensionedScalar( word( "zeroE" ), dimForce/dimArea, 0.0 ),
                                  zeroGradientFvPatchScalarField.typeName )
         
         #Accumulate data for all fields
         for lawI in self:
+            # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+            lawI_E = lawI.E()
             result.internalField().ext_assign( result.internalField() + \
-                                               self.indicator( self.index( lawI ) ) * lawI.E().internalField()  )
+                                               self.indicator( self.index( lawI ) ) * lawI_E.internalField()  )
             
         result.correctBoundaryConditions()
         
@@ -175,13 +186,15 @@ class multiMaterial( rheologyLaw, list ):
                                            IOobject.NO_READ,
                                            IOobject.NO_WRITE ),
                                  self.mesh(),
-                                 dimensionedScalar( word( "zeroE" ), dimless, 0),
+                                 dimensionedScalar( word( "zeroE" ), dimless, 0.0 ),
                                  zeroGradientFvPatchScalarField.typeName )
         
         #Accumulate data for all fields
         for lawI in self:
+            # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+            lawI_nu =lawI.nu()
             result.internalField().ext_assign( result.internalField() + \
-                                               self.indicator( self.index( lawI ) ) * lawI.nu().internalField()  )
+                                               self.indicator( self.index( lawI ) ) * lawI_nu.internalField()  )
             
         result.correctBoundaryConditions()
         
@@ -204,9 +217,11 @@ class multiMaterial( rheologyLaw, list ):
                                  zeroGradientFvPatchScalarField.typeName )
         
         #Accumulate data for all fields
-        for lawI in self.rheologyLawList:
+        for lawI in self:
+            # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+            lawI_Ep = lawI.Ep()
             result.internalField().ext_assign( result.internalField() + \
-                                               self.indicator( lawI ) * self.rheologyLawList[ lawI ].Ep().internalField()  )
+                                               self.indicator( lawI ) * lawI_Ep.internalField()  )
             
         result.correctBoundaryConditions()
         
@@ -229,9 +244,11 @@ class multiMaterial( rheologyLaw, list ):
                                   zeroGradientFvPatchScalarField.typeName )
         
         #Accumulate data for all fields
-        for lawI in self.rheologyLawList:
+        for lawI in self:
+            # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+            lawI_sigmaY = lawI.sigmaY()
             result.internalField().ext_assign( result.internalField() + \
-                                               self.indicator( lawI ) * self.rheologyLawList[ lawI ].sigmaY().internalField()  )
+                                               self.indicator( lawI ) * lawI_sigmaY.internalField()  )
             
         result.correctBoundaryConditions()
         

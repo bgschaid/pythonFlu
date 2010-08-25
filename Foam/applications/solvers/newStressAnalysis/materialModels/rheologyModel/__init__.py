@@ -20,21 +20,17 @@
 ##
 
 #----------------------------------------------------------------------------
-#to use wrapped unit's
-#from rheologyModel_ import *
-
-
-#----------------------------------------------------------------------------
-# to use rewrited unit's, It is necessary to comment line 23 "from rheologyModel_ import *" and rename class rheologyModel1 to rheologyModel
 from Foam.OpenFOAM import IOdictionary
 #----------------------------------------------------------------------------
 
 class rheologyModel( IOdictionary ):
     def __init__(self, sigma):
         from Foam.finiteVolume import volSymmTensorField
-        if sigma.__class__ != volSymmTensorField:
-           raise AttributeError("sigma.__class__ != volSymmTensorField")
-           
+        try:
+            volSymmTensorField.ext_isinstance( sigma )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != volSymmTensorField" )
+        
         from Foam.OpenFOAM import IOobject, word, fileName
         IOdictionary.__init__(self, IOobject( word( "rheologyProperties" ),
                                               fileName( sigma.time().constant() ),
@@ -43,8 +39,7 @@ class rheologyModel( IOdictionary ):
                                               IOobject.NO_WRITE ) )
         self.sigma_ = sigma
         
-        #self.typeName = word( "rheologyModel" )
-        
+        self.typeName = word( "rheologyModel" )
         from Foam.OpenFOAM import Switch
         self.planeStress_ = Switch( self.lookup( word( "planeStress" ) ) )
 

@@ -96,14 +96,18 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
             raise AssertionError( "len( args ) != 2" )
         argc = 0
 
-        from Foam.OpenFOAM import fvPatch
-        if args[ argc ].__class__ != fvPatch :
+        from Foam.finiteVolume import fvPatch
+        try:
+            fvPatch.ext_isinstance( args[ argc ] )
+        except TypeError:
             raise AssertionError( "args[ argc ].__class__ != fvPatch" )
         p = args[ argc ]; argc += 1
         
-        from Foam.OpenFOAM import DimensionedField_vector_volMesh
-        if args[ argc ].__class__ != DimensionedField_vector_volMesh :
-            raise AssertionError( "args[ argc ].__class__ != DimensionedField_vector_volMesh" )
+        from Foam.finiteVolume import DimensionedField_vector_volMesh
+        try:
+            DimensionedField_vector_volMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != DimensionedField_Vector_volMesh" )
         iF = args[ argc ]; argc += 1
         
         fixedGradientFvPatchVectorField.__init__( self, p, iF )
@@ -124,22 +128,28 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
             raise AssertionError( "len( args ) != 3" )
         argc = 0
         
-        from Foam.OpenFOAM import fvPatch
-        if args[ argc ].__class__ != fvPatch :
+        from Foam.finiteVolume import fvPatch
+        try:
+            fvPatch.ext_isinstance( args[ argc ] )
+        except TypeError:
             raise AssertionError( "args[ argc ].__class__ != fvPatch" )
         p = args[ argc ]; argc += 1
 
-        from Foam.OpenFOAM import DimensionedField_vector_volMesh
-        if args[ argc ].__class__ != DimensionedField_vector_volMesh :
-            raise AssertionError( "args[ argc ].__class__ != DimensionedField_vector_volMesh" )
+        from Foam.finiteVolume import DimensionedField_vector_volMesh
+        try:
+            DimensionedField_vector_volMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != DimensionedField_Vector_volMesh" )
         iF = args[ argc ]; argc += 1
         
         from Foam.OpenFOAM import dictionary
-        if args[ argc ].__class__ != dictionary :
+        try:
+            dictionary.ext_isinstance( args[ argc ] )
+        except TypeError:
             raise AssertionError( "args[ argc ].__class__ != dictionary" )
         dict_ = args[ argc ]; argc += 1
 
-        fixedGradientFvPatchVectorField.__init__( self,p, iF )
+        fixedGradientFvPatchVectorField.__init__( self, p, iF )
        
         from Foam.OpenFOAM import word
         from Foam.OpenFOAM import vectorField, vector, scalarField
@@ -147,8 +157,12 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
         self.rheologyName_ = word( dict_.lookup( word( "rheology" ) ) )
         self.traction_ = vectorField( word( "traction" ) , dict_, p.size() )
         self.pressure_ = scalarField( word( "pressure" ), dict_, p.size() )
+        
+        self.ext_assign( self.patchInternalField() )
+        self.gradient().ext_assign( vector.zero )
+        
         ext_Info() << "rf: " << self.rheologyName_ << nl
-                
+        
         return self
 
         
@@ -162,19 +176,25 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
             raise AssertionError( "args[ argc ].__class__ != self.__class__" )
         tdpvf = args[ argc ]; argc += 1
         
-        from Foam.OpenFOAM import fvPatch
-        if args[ argc ].__class__ != fvPatch :
+        from Foam.finiteVolume import fvPatch
+        try:
+            fvPatch.ext_isinstance( args[ argc ] )
+        except TypeError:
             raise AssertionError( "args[ argc ].__class__ != fvPatch" )
         p = args[ argc ]; argc += 1
 
-        from Foam.OpenFOAM import DimensionedField_vector_volMesh
-        if args[ argc ].__class__ != DimensionedField_vector_volMesh :
-            raise AssertionError( "args[ argc ].__class__ != DimensionedField_vector_volMesh" )
+        from Foam.finiteVolume import DimensionedField_vector_volMesh
+        try:
+            DimensionedField_vector_volMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != DimensionedField_Vector_volMesh" )
         iF = args[ argc ]; argc += 1
         
         from Foam.finiteVolume import fvPatchFieldMapper
-        if args[ argc ].__class__ != dictionary :
-            raise AssertionError( "args[ argc ].__class__ != dictionary" )
+        try:
+            fvPatchFieldMapper.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != fvPatchFieldMapper" )
         mapper = args[ argc ]; argc += 1
         
         fixedGradientFvPatchVectorField.__init__( self, tdpvf, p, iF, mapper )
@@ -220,9 +240,11 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
             raise AssertionError( "args[ argc ].__class__ != self.__class__" )
         tdpvf = args[ argc ]; argc += 1
         
-        from Foam.OpenFOAM import DimensionedField_vector_volMesh
-        if args[ argc ].__class__ != DimensionedField_vector_volMesh :
-            raise AssertionError( "args[ argc ].__class__ != DimensionedField_vector_volMesh" )
+        from Foam.finiteVolume import DimensionedField_vector_volMesh
+        try:
+            DimensionedField_vector_volMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != DimensionedField_Vector_volMesh" )
         iF = args[ argc ]; argc += 1
         
         fixedGradientFvPatchVectorField.__init__( self, tdpvf, iF )
@@ -274,14 +296,16 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
             raise AssertionError( "len( args ) != 1" )
         argc = 0
 
-        from Foam.OpenFOAM import DimensionedField_vector_volMesh
-        if args[ argc ].__class__ != DimensionedField_vector_volMesh :
-            return AssertionError( "args[ argc ].__class__ != DimensionedField_vector_volMesh" )
+        from Foam.finiteVolume import DimensionedField_vector_volMesh
+        try:
+            DimensionedField_vector_volMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != DimensionedField_Vector_volMesh" )
         iF = args[ argc ]; argc += 1
 
         from Foam.finiteVolume import tmp_fvPatchField_vector
         obj = tractionDisplacementFvPatchVectorField( self, iF )
-        print repr( obj )
+        
         return tmp_fvPatchField_vector( obj )
     
     
@@ -297,7 +321,7 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
     
     #-------------------------------------------------------------------------------------
     def autoMap(self, *args):
-        print "in autoMap"
+        
         if len( args ) != 1 :
             raise AssertionError( "len( args ) != 1" )
         argc = 0
@@ -313,7 +337,7 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
     #---------------------------------------------------------------------------------------
     # Reverse-map the given fvPatchField onto this fvPatchField
     def rmap( self, *args ):
-        print "in rmap"
+        
         if len( args ) != 1 :
             raise AssertionError( "len( args ) != 1" )
         argc = 0
@@ -332,8 +356,58 @@ class tractionDisplacementFvPatchVectorField( fixedGradientFvPatchVectorField ):
         
     #---------------------------------------------------------------------------------------
     def updateCoeffs(self):
-        print "in updateCoeffs"
-        
+        try:
+           if self.updated():
+              return
+
+           from Foam.OpenFOAM import IOdictionary
+           rheology = IOdictionary.ext_lookupObject( self.db(), self.rheologyName_ )
+           from Foam.OpenFOAM import scalarField
+           
+           # Python does not wait for evaluation of the closure expression, it destroys return values if it is no more in use
+           a_rheology_mu = rheology.mu()
+           a_rheology_mu_boundaryField = a_rheology_mu.ext_boundaryField()
+           mu = scalarField( a_rheology_mu_boundaryField[self.patch().index()] )
+           
+           a_rheology_lambda = rheology._lambda()
+           a_rheology_lambda_boundaryField = a_rheology_lambda.ext_boundaryField()
+           lambda_ = scalarField( a_rheology_lambda_boundaryField[ self.patch().index() ] )
+
+           n = self.patch().nf()
+           from Foam.finiteVolume import volTensorField
+           from Foam.OpenFOAM import word
+           gradU =volTensorField.ext_lookupPatchField( self.patch(), word( "grad(" +str( self.UName_ ) + ")" ) )
+           
+           from Foam.OpenFOAM import ext_Info
+           self.gradient().ext_assign( ( ( self.traction_ -  self.pressure_ * n ) - ( n & ( mu * gradU.ext_T() - ( mu + lambda_ ) * gradU ) ) \
+                                          - n * lambda_ * gradU.tr() ) / ( 2.0 * mu + lambda_) )
+           
+           from Foam.finiteVolume import fixedGradientFvPatchVectorField
+           fixedGradientFvPatchVectorField.updateCoeffs( self )
+        except Exception, exc:
+            import sys, traceback
+            traceback.print_exc( file = sys.stdout )
+            raise exc   
+    
+    
+    #----------------------------------------------------------------------------------------
+    def write( self, os):
+        try:
+           from Foam.finiteVolume import fvPatchVectorField
+           fvPatchVectorField.write( self, os )
+         
+           from Foam.OpenFOAM import word, token
+           os.writeKeyword( word( "U" ) ) << self.UName_ << token( token.END_STATEMENT ) << nl
+           os.writeKeyword( word( "rheology" ) ) << self.rheologyName_ << token( token.END_STATEMENT ) << nl
+           self.traction_.writeEntry( word( "traction" ), os)
+           self.pressure_.writeEntry( word( "pressure" ), os)
+           self.writeEntry( word( "value" ), os)
+           pass
+        except Exception, exc:
+            import sys, traceback
+            traceback.print_exc( file = sys.stdout )
+            raise exc   
+        pass
 
 
     #----------------------------------------------------------------------------------------

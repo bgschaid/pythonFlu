@@ -61,14 +61,18 @@ class componentReference:
         
         argc = 0
         from Foam.finiteVolume import fvMesh
-        if args[ argc ].__class__ != fvMesh:
-           raise AssertionError( "args[ argc ].__class__ != fvMesh" )
+        try:
+            fvMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != fvMesh" )
         mesh = args[ argc ]; argc +=1
         
-        from Foam.finiteVolume import word
-        if args[ argc ].__class__ != word:
-           raise AssertionError( "args[ argc ].__class__ != word" )
-        patchName = args[ argc ]; argc +=1
+        from Foam.OpenFOAM import word
+        try:
+            patchName = word( str( args[ argc ] ) )
+        except ValueError:
+           raise AttributeError("The second arg is not string")
+        argc +=1
         
         try:
            faceIndex = int( args[ argc ] )
@@ -104,13 +108,17 @@ class componentReference:
         argc = 0
         
         from Foam.finiteVolume import fvMesh
-        if args[ argc ].__class__ != fvMesh:
-           raise AssertionError( "args[ argc ].__class__ != fvMesh" )
+        try:
+            fvMesh.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != fvMesh" )
         mesh = args[ argc ]; argc +=1
         
-        from Foam.finiteVolume import dictionary
-        if args[ argc ].__class__ != dictionary:
-           raise AssertionError( "args[ argc ].__class__ != dcitionary" )
+        from Foam.OpenFOAM import dictionary
+        try:
+            dictionary.ext_isinstance( args[ argc ] )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != dictionary" )
         dict_ = args[ argc ]
         
         from Foam.OpenFOAM import polyPatchID, word, readLabel, readScalar
@@ -139,11 +147,33 @@ class componentReference:
         
         
     #------------------------------------------------------------------------------    
+    class iNew:
+        def __init__( self, mesh_ ):
+            from Foam.finiteVolume import fvMesh
+            try:
+               fvMesh.ext_isinstance( mesh_ )
+            except TypeError:
+               raise AssertionError( "args[ argc ].__class__ != fvMesh" )
+       
+            self.mesh_ = mesh_
+
+
+    #---------------------------------------------------------------------------------
+        def __call__(self, is_):
+             
+           from Foam.OpenFOAM import dictionary
+           crDict = dictionary(is_)
+       
+           return componentReference( self.mesh_, crDict )
+    #---------------------------------------------------------------------------------
+    
     #- Create direction given a name
     def getDir( self, dict_ ):
         from Foam.OpenFOAM import dictionary
-        if dict_.__class__ != dictionary:
-           raise AttributeError( "dict_.__class__ != dictionary" )
+        try:
+            dictionary.ext_isinstance( dict_ )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != dictionary" )
         
         from Foam.OpenFOAM import word
         dirName = str( word( dict_.lookup( word( "direction" ) ) ) )
@@ -166,8 +196,10 @@ class componentReference:
     def checkPatchFace( self, mesh ):
 
         from Foam.finiteVolume import fvMesh
-        if mesh.__class__ != fvMesh:
-           raise AssertionError( " mesh.__class__ != fvMesh " )
+        try:
+            fvMesh.ext_isinstance( mesh )
+        except TypeError:
+            raise AssertionError( "args[ argc ].__class__ != fvMesh" )
         
         if not self.patchID_.active() or  self.faceIndex_ >= mesh.boundaryMesh()[self.patchID_.index()].ext_size():
            raise AssertionError ("Non-existing patch or index out of range ")
@@ -205,85 +237,7 @@ class componentReference:
 
 
 #------------------------------------------------------------------------------------
-class iNew:
-    def __init__( self, mesh_ ):
-       from Foam.finiteVolume import fvMesh
-       if mesh_.__class__ != fvMesh:
-          raise AssertionError( " mesh_.__class__ != fvMesh " )
+
        
-       self.mesh_ = mesh_
 
 
-    #---------------------------------------------------------------------------------
-    def __call__(self, is_):
-       #from Foam.OpenFOAM import Istream, ITstream
-       #if is_.__class__ != Istream or is_.__class__ != ITstream:
-       #   raise AssertionError( "is_.__class__ != Istream" )
-       
-       from Foam.OpenFOAM import dictionary
-       crDict = dictionary(is_)
-       
-       return componentReference( self.mesh_, crDict )
-       
-
-#--------------------------------------------------------------------------------------          
-#This function is constructor for List<ComponentReference>(from Istream and Inew). But we not use OpenFOAM's PtrList,
-#we use Python's list. The reference code you can see in OpenFOAM "PtrListIO.C"
-
-def componentReferenceList( is_, inewt):
-    #from Foam.OpenFOAM import ITstream
-    #if is_.__class__ != ITstream or is_.__class__ != Istream:
-    #   raise AssertionError( "is_.__class__ != Istream" )
-    
-    if inewt.__class__ != iNew:
-       raise AssertionError( "inewt.__class__ != iNew" )
-    
-    is_.fatalCheck("PtrList<T>::read(Istream& is, const INew& inewt)")
-    
-    from Foam.OpenFOAM import token
-    firstToken = token(is_);
-   
-    is_.fatalCheck("PtrList<T>::read(Istream& is, const INew& inewt) : reading first token" )
-    
-    result = []
-    if firstToken.isLabel():
-       #  Read size of list
-       s = firstToken.labelToken()
-       
-       # Read beginning of contents
-       listDelimiter = is_.readBeginList("PtrList")
-       
-       if s:
-          if listDelimiter == token.BEGIN_LIST:
-             for index in range(s):
-                 result.append( inewt( is_ ) )
-                 is_.fatalCheck( "PtrList<T>::read(Istream& is, const INew& inewt) : reading entry" )
-          else:
-             result.append( inewt( is_ ) )
-             is_.fatalCheck( "PtrList<T>::read(Istream& is, const INew& inewt) : reading the single entry" ) 
-
-             for index in range(s):
-                 result.append( inewt( is_ ).clone() )
-                    
-       is_.readEndList("PtrList")
-    
-    elif firstToken.isPunctuation():
-       if firstToken.pToken() != token.BEGIN_LIST:
-          raise IOError("incorrect first token, '(', found %s" %firstToken.info() )
-       
-       lastToken = token (is_)
-       
-       sllPtrs = []
-       
-       while not ( lastToken.isPunctuation() and lastToken.pToken() == token.END_LIST ):
-          is_.putBack( lastToken )
-          sllPtrs.append( inewt(is_) )
-          is_ >> lastToken
-       
-       for index in range( len( sllPtrs ) ):
-           result.append( sllPtrs[ index ] )
-       
-    else:
-       raise IOError("incorrect first token, expected <int> or '(', found %s" %firstToken.info() )
-
-    return result

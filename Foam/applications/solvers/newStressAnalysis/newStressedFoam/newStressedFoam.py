@@ -22,9 +22,9 @@
 ## Author : Alexey PETROV
 ##
 
-from Foam.OpenFOAM import ext_Info, nl,word
 
-#from Foam.applications.solvers.newStressAnalysis.newStressedFoam import plugin
+#---------------------------------------------------------------------------
+from Foam.OpenFOAM import ext_Info, nl,word
 from Foam.applications.solvers.newStressAnalysis.materialModels.fvPatchFields import tractionDisplacement
 
 
@@ -39,13 +39,13 @@ def createFields( runTime, mesh ):
     
     from Foam.finiteVolume import volVectorField
     from Foam.OpenFOAM import IOobject, fileName, word
-    print "111"
     U = volVectorField( IOobject( word( "U" ),
                                   fileName( runTime.timeName() ),
                                   mesh,
                                   IOobject.MUST_READ,
                                   IOobject.AUTO_WRITE ),
                         mesh )
+
     from Foam.finiteVolume import volSymmTensorField
     from Foam.OpenFOAM import dimensionedSymmTensor, symmTensor
     from Foam.OpenFOAM import dimForce, dimArea
@@ -58,12 +58,7 @@ def createFields( runTime, mesh ):
                                 dimensionedSymmTensor( word( "zero" ), dimForce/dimArea, symmTensor.zero)
                               )
     
-    # to use wrapped unit
     from Foam.applications.solvers.newStressAnalysis.materialModels.rheologyModel import rheologyModel
-    
-    #to use re-writed unit
-    #from Foam.applications.solvers.newStressAnalysis.materialModels import rheologyModel
-    
     rheology = rheologyModel( sigma )
 
     return U, sigma, rheology
@@ -80,13 +75,10 @@ def readStressedFoamControls( mesh):
     from Foam.OpenFOAM import readScalar
     convergenceTolerance = readScalar(stressControl.lookup( word( "U" ) ) )
     
-    # to use wrapped unit
-    #from Foam.applications.solvers.newStressAnalysis.materialModels.componentReference import componentReferenceList, iNew 
+    from Foam.applications.solvers.newStressAnalysis.materialModels.componentReference import componentReference
+    from Foam.template import PtrList
     
-    #to use re-writed unit
-    from Foam.applications.solvers.newStressAnalysis.materialModels.componentReference import componentReferenceList, iNew
-    
-    cr = componentReferenceList( stressControl.lookup( word( "componentReference" ) ), iNew(mesh) )
+    cr = PtrList( componentReference )( stressControl.lookup( word( "componentReference" ) ), componentReference.iNew(mesh) )
 
     return stressControl, nCorr, convergenceTolerance, cr
 
@@ -104,7 +96,7 @@ def setComponentReference( cr, UEqn ):
 #--------------------------------------------------------------------------------------
 def calculateSigma( sigma, mu, gradU, _lambda ):
     from Foam.OpenFOAM import I
-    sigma.ext_assign( 2*mu*gradU().symm() + _lambda*(I*gradU().tr()) )
+    sigma.ext_assign( 2*mu*gradU.symm() + _lambda*(I*gradU.tr()) )
     pass
     
 
@@ -188,8 +180,8 @@ def main_standalone( argc, argv ):
     
     from Foam import fvc
     gradU = fvc.grad( U )
-    rho = rheology.rho()
     
+    rho = rheology.rho()
     runTime += runTime.deltaT()
     while not runTime.end() :
         
@@ -208,14 +200,14 @@ def main_standalone( argc, argv ):
             from Foam.OpenFOAM import I
             
             UEqn = fvm.d2dt2( rho,U ) == fvm.laplacian( 2*mu + _lambda, U, word( "laplacian(DU,U)" ) ) \
-                                       + fvc.div( mu*gradU.T() + _lambda*(I*gradU().tr()) - ( mu + _lambda )*gradU , \
+                                       + fvc.div( mu*gradU.T() + _lambda*( I * gradU.tr() ) - ( mu + _lambda )*gradU , \
                                                   word("div(sigma)") )
-           
+            
             setComponentReference( cr, UEqn )
             
             initialResidual = UEqn.solve().initialResidual()
                         
-            gradU().ext_assign( fvc.grad( U ) )
+            gradU.ext_assign( fvc.grad( U ) )
             
             calculateSigma( sigma, mu, gradU, _lambda )
             
@@ -245,14 +237,14 @@ def main_standalone( argc, argv ):
 #--------------------------------------------------------------------------------------
 import sys, os
 from Foam import FOAM_VERSION
-if FOAM_VERSION() < "010500" :
+if FOAM_VERSION( "<", "010500" ):
    if __name__ == "__main__" :
       argv = sys.argv
-      os._exit( main_standalone( len( argv ), argv ) )
-      pass
-   else :
-      argv = None
-      argv = [ __file__, "/scratch/petrova/dev/icoFoam", "cavity" ]
+      if len( argv ) >1 and argv[ 1 ]=="-test":
+        argv = None
+        test_dir= os.path.join( os.environ[ "PYFOAM_TESTING_DIR" ],'cases', 'local', 'r1.4.1-dev', 'newStressedFoam' )
+        argv = [ __file__, test_dir, 'plateHole' ] 
+        pass
       os._exit( main_standalone( len( argv ), argv ) )
       pass
 else :
