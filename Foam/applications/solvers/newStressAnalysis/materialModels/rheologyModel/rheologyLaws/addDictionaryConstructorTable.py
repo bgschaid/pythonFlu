@@ -14,13 +14,13 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ## 
-## See https://vulashaka.svn.sourceforge.net/svnroot/vulashaka/pyfoam
+## See https://vulashaka.svn.sourceforge.net/svnroot/vulashaka
 ##
 ## Author : Alexey PETROV
 ##
 
 #----------------------------------------------------------------------------
-class addDictionaryConstructorTable():
+class addDictionaryConstructorTable:
      
      dictionaryTable = {}
      
